@@ -1,0 +1,59 @@
+name: native
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'native/**'
+      - '.github/workflows/native.yml'
+  pull_request:
+    paths:
+      - 'native/**'
+      - '.github/workflows/native.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: native
+
+jobs:
+  check:
+    name: lint / typecheck / test / build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: native/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint (oxlint)
+        run: npm run lint
+
+      - name: Typecheck (TypeScript 7)
+        run: npm run typecheck
+
+      - name: Test (Jest)
+        run: npm test -- --ci
+
+      - name: Expo doctor
+        run: npx expo-doctor
+
+      # ネイティブのバイナリまでは作らず、iOS / Android の JS バンドルが作れるかを確認する
+      # （実機用のビルドは EAS Build で行う）
+      - name: Build JS bundles (iOS / Android)
+        run: npx expo export --platform ios --platform android --output-dir dist

@@ -1,0 +1,53 @@
+name: server
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - '.github/workflows/server.yml'
+  pull_request:
+    paths:
+      - 'server/**'
+      - '.github/workflows/server.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: server-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: server
+
+jobs:
+  check:
+    name: lint / typecheck / test / build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint (oxlint)
+        run: npm run lint
+
+      - name: Typecheck (TypeScript 7)
+        run: npm run typecheck
+
+      - name: Test (Vitest)
+        run: npm test
+
+      # デプロイはせず、Worker としてバンドルできるかだけ確認する
+      - name: Build (wrangler dry-run)
+        run: npx wrangler deploy --dry-run --outdir dist

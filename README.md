@@ -64,3 +64,15 @@ npm run dev        # http://localhost:8787/health
 | `npm run lint` | oxlint |
 | `npm test` | テスト（Vitest） |
 | `npm run deploy` | Cloudflare にデプロイ |
+
+## CI（GitHub Actions）
+
+`main` への push と Pull Request で、変更があった側だけ実行します。
+
+| ワークフロー | 実行内容 |
+| --- | --- |
+| [native](.github/workflows/native.yml) | oxlint → 型チェック → Jest → expo-doctor → iOS / Android の JS バンドル作成 |
+| [server](.github/workflows/server.yml) | oxlint → 型チェック → Vitest → `wrangler deploy --dry-run`（デプロイはしない） |
+
+ネイティブのバイナリ（ipa / apk）は CI では作りません。実機向けのビルドは EAS Build で行います。
+
