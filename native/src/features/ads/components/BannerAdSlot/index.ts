@@ -1,0 +1,1 @@
+export { BannerAdSlot } from './BannerAdSlot';

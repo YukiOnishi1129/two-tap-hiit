@@ -1,0 +1,1 @@
+export { WeekDots } from './WeekDots';

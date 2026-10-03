@@ -1,0 +1,216 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "react",
+    "import",
+    "unicorn",
+    "oxc",
+    "jest"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "env": {
+    "builtin": true,
+    "es2024": true
+  },
+  "globals": {
+    "__DEV__": "readonly",
+    "process": "readonly",
+    "require": "readonly"
+  },
+  "ignorePatterns": [
+    "node_modules",
+    ".expo",
+    "dist",
+    "ios",
+    "android",
+    "*.config.js",
+    "scripts"
+  ],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "react/react-in-jsx-scope": "off",
+    "import/no-cycle": "error",
+    "typescript/consistent-type-imports": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "@react-native-async-storage/async-storage",
+            "message": "端末保存は shared/lib/storage.ts 経由で使う（各 feature の repository/ から呼ぶ）"
+          },
+          {
+            "name": "expo-audio",
+            "message": "音は features/workout/lib/soundClient.ts に閉じ込める"
+          },
+          {
+            "name": "expo-haptics",
+            "message": "振動は features/workout/lib/hapticsClient.ts に閉じ込める"
+          }
+        ],
+        "patterns": [
+          {
+            "group": [
+              "@/features/*/**"
+            ],
+            "message": "他の feature は公開 API (@/features/<name>) 経由で使う。同じ feature 内は相対パスで import する"
+          },
+          {
+            "group": [
+              "@/app/**",
+              "@/app"
+            ],
+            "message": "app/ はルーティング専用。他から import しない"
+          }
+        ]
+      }
+    ],
+    "react/style-prop-object": "off",
+    "import/no-unassigned-import": [
+      "warn",
+      {
+        "allow": [
+          "**/*.css"
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/shared/components/ui/**"
+      ],
+      "rules": {
+        "import/namespace": "off"
+      }
+    },
+    {
+      "files": [
+        "src/shared/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@react-native-async-storage/async-storage",
+                "message": "storage.ts 以外では使わない"
+              },
+              {
+                "name": "expo-router",
+                "message": "shared/ は画面遷移を知らない"
+              }
+            ],
+            "patterns": [
+              {
+                "group": [
+                  "@/features",
+                  "@/features/**",
+                  "@/app/**"
+                ],
+                "message": "shared/ は features/ に依存しない"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/shared/lib/storage.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "src/features/workout/lib/soundClient.ts",
+        "src/features/workout/lib/hapticsClient.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "**/*Presenter.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "expo-router",
+                "message": "Presenter は描画だけ。遷移は use{Component}.ts で行う"
+              },
+              {
+                "name": "@react-native-async-storage/async-storage",
+                "message": "Presenter はデータを取りに行かない"
+              }
+            ],
+            "patterns": [
+              {
+                "group": [
+                  "**/repository/**",
+                  "**/lib/*Client",
+                  "**/lib/adService"
+                ],
+                "message": "Presenter はデータ取得・副作用を持たない。hook から props で受け取る"
+              },
+              {
+                "group": [
+                  "@/features/*/**"
+                ],
+                "message": "他の feature は公開 API (@/features/<name>) 経由で使う"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/app/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/features/*/**"
+                ],
+                "message": "app/ からは features の公開 API だけを使う"
+              },
+              {
+                "group": [
+                  "@/shared/lib/storage",
+                  "@/shared/config/**"
+                ],
+                "message": "app/ はデータ取得をしない（features に委譲する）"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.test.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ]
+}

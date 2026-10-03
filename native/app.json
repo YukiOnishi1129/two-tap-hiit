@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "2-Tap HIIT",
+    "slug": "two-tap-hiit",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yukionishi.twotaphiit"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.yukionishi.twotaphiit"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-localization",
+      "expo-audio",
+      "expo-asset"
+    ],
+    "scheme": "twotaphiit",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

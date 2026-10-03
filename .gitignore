@@ -1,0 +1,67 @@
+# ==============================
+# 共通
+# ==============================
+
+# 依存パッケージ
+node_modules/
+
+# ログ
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 環境変数・秘密情報
+.env
+.env*.local
+.dev.vars
+*.pem
+*.key
+
+# OS / エディタ
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# TypeScript
+*.tsbuildinfo
+
+# テスト
+coverage/
+
+# ==============================
+# native/ (Expo / React Native)
+# ==============================
+native/.expo/
+native/dist/
+native/web-build/
+native/expo-env.d.ts
+native/.kotlin/
+
+# prebuild で生成されるネイティブプロジェクト (CNG 運用)
+native/ios/
+native/android/
+
+# Metro
+.metro-health-check*
+
+# ネイティブビルド成果物・署名ファイル
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+*.orig.*
+*.ipa
+*.apk
+*.aab
+
+# ==============================
+# server/ (Cloudflare Workers)
+# ==============================
+server/.wrangler/
+server/dist/

@@ -1,0 +1,1 @@
+export { ExerciseVisual } from './ExerciseVisual';

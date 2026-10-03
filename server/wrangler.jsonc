@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "two-tap-hiit-server",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true }
+
+  // D1 は必要になったら有効化する（購入レシートの検証結果や匿名同期など）。
+  // npx wrangler d1 create two-tap-hiit で作成し、表示された database_id を入れる。
+  // "d1_databases": [
+  //   { "binding": "DB", "database_name": "two-tap-hiit", "database_id": "<database_id>", "migrations_dir": "migrations" }
+  // ]
+}
