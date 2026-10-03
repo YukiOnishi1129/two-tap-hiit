@@ -20,13 +20,13 @@ export default function RootLayout() {
           headerBackButtonDisplayMode: 'minimal',
           contentStyle: { backgroundColor: BACKGROUND },
         }}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
+        {/* ホーム・記録のタブ。コース選択以降はタブの上に重ねて表示する（ワークアウト中はタブバーが出ない） */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="course" options={{ title: t('course.title') }} />
         <Stack.Screen name="sets" options={{ title: t('sets.title') }} />
         {/* ワークアウト中・完了画面はスワイプで戻れないようにする */}
         <Stack.Screen name="workout" options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
         <Stack.Screen name="complete" options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
-        <Stack.Screen name="records" options={{ headerShown: false }} />
       </Stack>
       <MockInterstitialHost />
       <PortalHost />

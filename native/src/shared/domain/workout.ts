@@ -48,3 +48,25 @@ export function getWorkoutDurationSec(setCount: SetCount): number {
   const intervals = setCount * 2;
   return intervals * EXERCISE_SECONDS + (intervals - 1) * REST_SECONDS;
 }
+
+/** 途中でやめたときの記録内容 */
+export type EarlyEnd = { completedSets: number; durationSec: number };
+
+/**
+ * 完了画面のルートパラメータから「途中でやめた」情報を取り出す。
+ * パラメータが無ければ最後までやった扱い（null）。
+ */
+export function parseEarlyEnd(
+  doneSets: string | string[] | undefined,
+  sec: string | string[] | undefined,
+  setCount: SetCount,
+): EarlyEnd | null {
+  if (doneSets === undefined || sec === undefined) return null;
+  const completedSets = Number(doneSets);
+  const durationSec = Number(sec);
+  if (!Number.isInteger(completedSets) || !Number.isInteger(durationSec)) return null;
+  return {
+    completedSets: Math.min(Math.max(completedSets, 0), setCount),
+    durationSec: Math.min(Math.max(durationSec, 0), getWorkoutDurationSec(setCount)),
+  };
+}

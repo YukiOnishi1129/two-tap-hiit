@@ -7,7 +7,8 @@ export const ja: Record<MessageKey, string> = {
 
   'home.start': 'はじめる',
   'home.thisWeek': '今週',
-  'home.records': '記録',
+  'tabs.home': 'ホーム',
+  'tabs.records': '記録',
 
   'course.title': 'コースをえらぶ',
   'course.standard.name': 'スタンダード',
@@ -39,12 +40,15 @@ export const ja: Record<MessageKey, string> = {
   'workout.end': 'やめる',
   'workout.paused': '一時停止中',
   'workout.endConfirm.title': 'ここでやめる？',
-  'workout.endConfirm.message': 'この回は記録されません。',
+  'workout.endConfirm.messageSaved': 'ここまでの分は記録されます。',
+  'workout.endConfirm.messageNotSaved': '1種目（30秒）終わる前なので、記録されません。',
   'workout.endConfirm.cancel': 'つづける',
   'workout.endConfirm.confirm': 'やめる',
 
   'complete.title': 'おつかれ！',
   'complete.message': '今日も動けたね。',
+  'complete.messageEarly': '途中までの分も記録したよ。',
+  'complete.setsPartial': '{done} / {total}セット',
   'complete.course': 'コース',
   'complete.sets': 'セット数',
   'complete.time': '時間',
@@ -61,6 +65,7 @@ export const ja: Record<MessageKey, string> = {
   'records.empty': 'まだ記録なし。1回やれば十分。',
   'records.dayRest': 'この日はおやすみ',
   'records.entry': '{sets}・{duration}',
+  'records.entryPartial': '{done}/{total}セット（途中まで）・{duration}',
 
   'settings.title': '設定',
   'settings.sound': 'サウンド',

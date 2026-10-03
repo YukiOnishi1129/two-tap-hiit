@@ -3,11 +3,36 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { tryShowInterstitial } from '@/features/ads';
 import { DEFAULT_PREFERENCES, getPreferences, type Preferences, savePreferences } from '@/features/settings';
-import { getMonthGrid, toDateKey } from '@/shared/lib/date';
+import { formatDay, formatDuration, formatTime, t } from '@/shared/i18n';
+import { type DateKey, fromDateKey, getMonthGrid, toDateKey } from '@/shared/lib/date';
 
-import { countMonthDays, countStreak, countWeekDays, getCompletedDates } from '../../domain/recordStats';
+import { summarizeCompletion } from '../../domain/completionSummary';
+import { countMonthDays, countStreak, countWeekDays, getCompletedDates, getDayCompletions } from '../../domain/recordStats';
 import { listWorkoutCompletions } from '../../repository/workoutCompletionRepository';
 import type { WorkoutCompletion } from '../../types/workoutCompletion';
+
+/** 選んだ日の記録1件分（表示用） */
+export type DayEntry = {
+  key: string;
+  time: string;
+  courseName: string;
+  detail: string;
+  endedEarly: boolean;
+};
+
+function toDayEntry(completion: WorkoutCompletion): DayEntry {
+  const summary = summarizeCompletion(completion);
+  const duration = formatDuration(summary.durationSec);
+  return {
+    key: completion.completedAt,
+    time: formatTime(new Date(completion.completedAt)),
+    courseName: t(`course.${completion.courseId}.name`),
+    detail: summary.endedEarly
+      ? t('records.entryPartial', { done: summary.completedSets, total: completion.setCount, duration })
+      : t('records.entry', { sets: t('sets.count', { count: completion.setCount }), duration }),
+    endedEarly: summary.endedEarly,
+  };
+}
 
 export function useRecordsScreen() {
   const router = useRouter();
@@ -16,6 +41,8 @@ export function useRecordsScreen() {
   const [preferences, setPreferences] = useState<Preferences>(DEFAULT_PREFERENCES);
   const [month, setMonth] = useState({ year: today.getFullYear(), month: today.getMonth() });
   const leavingRef = useRef(false);
+  const todayKey = toDateKey(today);
+  const [selectedDate, setSelectedDate] = useState<DateKey>(todayKey);
 
   useFocusEffect(
     useCallback(() => {
@@ -26,6 +53,10 @@ export function useRecordsScreen() {
   );
 
   const completedDates = useMemo(() => getCompletedDates(completions), [completions]);
+  const dayEntries = useMemo(
+    () => getDayCompletions(completions, selectedDate).map(toDayEntry),
+    [completions, selectedDate],
+  );
   const isCurrentMonth = month.year === today.getFullYear() && month.month === today.getMonth();
 
   const shiftMonth = (delta: number) =>
@@ -53,7 +84,14 @@ export function useRecordsScreen() {
     month: month.month,
     weeks: getMonthGrid(month.year, month.month),
     completedDates,
-    todayKey: toDateKey(today),
+    todayKey,
+    selectedDate,
+    selectedDateLabel: formatDayLabel(selectedDate),
+    dayEntries,
+    // 未来の日は選べない
+    onSelectDate: (date: DateKey) => {
+      if (date <= todayKey) setSelectedDate(date);
+    },
     weekCount: countWeekDays(completedDates, today),
     monthCount: countMonthDays(completedDates, month.year, month.month),
     streak: countStreak(completedDates, today),
@@ -67,4 +105,8 @@ export function useRecordsScreen() {
     onToggleBgm: (bgmEnabled: boolean) => updatePreferences({ bgmEnabled }),
     onBack: goHome,
   };
+}
+
+function formatDayLabel(date: DateKey): string {
+  return formatDay(fromDateKey(date));
 }

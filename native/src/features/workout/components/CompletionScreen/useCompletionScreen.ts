@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { type InterstitialResult, tryShowInterstitial } from '@/features/ads';
 import { addWorkoutCompletion } from '@/features/records';
 import { getAppConfig } from '@/shared/config/getAppConfig';
-import { type CourseId, getWorkoutDurationSec, type SetCount } from '@/shared/domain/workout';
+import { type CourseId, type EarlyEnd, getWorkoutDurationSec, type SetCount } from '@/shared/domain/workout';
 import { toDateKey } from '@/shared/lib/date';
 
 /**
@@ -17,8 +17,19 @@ import { toDateKey } from '@/shared/lib/date';
  *   5秒以内に「ホームへ」→ 広告を出せる条件なら表示 → 閉じたらホームへ
  *
  * どの経路でも、1回の完了で広告は最大1回だけ。
+ * 途中でやめた回（earlyEnd あり）も、ここまでの分を記録して同じ流れにする。
  */
-export function useCompletionScreen({ courseId, setCount }: { courseId: CourseId; setCount: SetCount }) {
+export function useCompletionScreen({
+  courseId,
+  setCount,
+  earlyEnd = null,
+}: {
+  courseId: CourseId;
+  setCount: SetCount;
+  earlyEnd?: EarlyEnd | null;
+}) {
+  const completedSets = earlyEnd?.completedSets ?? setCount;
+  const durationSec = earlyEnd?.durationSec ?? getWorkoutDurationSec(setCount);
   const router = useRouter();
   const adRef = useRef<Promise<InterstitialResult> | null>(null);
   const leavingRef = useRef(false);
@@ -41,8 +52,15 @@ export function useCompletionScreen({ courseId, setCount }: { courseId: CourseId
     if (savedRef.current) return;
     savedRef.current = true;
     const now = new Date();
-    void addWorkoutCompletion({ date: toDateKey(now), courseId, setCount, completedAt: now.toISOString() });
-  }, [courseId, setCount]);
+    void addWorkoutCompletion({
+      date: toDateKey(now),
+      courseId,
+      setCount,
+      completedAt: now.toISOString(),
+      completedSets,
+      durationSec,
+    });
+  }, [courseId, setCount, completedSets, durationSec]);
 
   // 5秒後の自動トリガー
   useEffect(() => {
@@ -66,5 +84,5 @@ export function useCompletionScreen({ courseId, setCount }: { courseId: CourseId
     goHome();
   };
 
-  return { courseId, setCount, totalSec: getWorkoutDurationSec(setCount), onHome };
+  return { courseId, setCount, completedSets, totalSec: durationSec, endedEarly: earlyEnd !== null, onHome };
 }

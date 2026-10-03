@@ -6,7 +6,8 @@ export const en = {
 
   'home.start': 'Start',
   'home.thisWeek': 'This week',
-  'home.records': 'Records',
+  'tabs.home': 'Home',
+  'tabs.records': 'Records',
 
   'course.title': 'Choose a course',
   'course.standard.name': 'Standard',
@@ -38,12 +39,15 @@ export const en = {
   'workout.end': 'End',
   'workout.paused': 'Paused',
   'workout.endConfirm.title': 'End this workout?',
-  'workout.endConfirm.message': "This round won't be saved.",
+  'workout.endConfirm.messageSaved': "What you've done so far will be saved.",
+  'workout.endConfirm.messageNotSaved': 'Finish one move (30 sec) to save it.',
   'workout.endConfirm.cancel': 'Keep going',
   'workout.endConfirm.confirm': 'End',
 
   'complete.title': 'Done!',
   'complete.message': 'Nice. You moved today.',
+  'complete.messageEarly': 'Saved what you did. That counts.',
+  'complete.setsPartial': '{done} / {total} sets',
   'complete.course': 'Course',
   'complete.sets': 'Sets',
   'complete.time': 'Time',
@@ -60,6 +64,7 @@ export const en = {
   'records.empty': 'Nothing yet. One round is plenty.',
   'records.dayRest': 'Rest day',
   'records.entry': '{sets} · {duration}',
+  'records.entryPartial': '{done} of {total} sets (ended early) · {duration}',
 
   'settings.title': 'Settings',
   'settings.sound': 'Sound',

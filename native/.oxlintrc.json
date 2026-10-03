@@ -78,7 +78,9 @@
           "**/*.css"
         ]
       }
-    ]
+    ],
+    "unicorn/no-array-sort": "off",
+    "unicorn/no-array-reverse": "off"
   },
   "overrides": [
     {

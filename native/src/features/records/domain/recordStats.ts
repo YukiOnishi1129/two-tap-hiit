@@ -46,5 +46,5 @@ export function countStreak(completedDates: Set<DateKey>, today: Date): number {
 export function getDayCompletions(completions: WorkoutCompletion[], date: DateKey): WorkoutCompletion[] {
   return completions
     .filter((c) => c.date === date)
-    .sort((a, b) => a.completedAt.localeCompare(b.completedAt));
+    .sort((a, b) => a.completedAt.localeCompare(b.completedAt)); // filter の結果（新しい配列）を並べ替えるので元データは変わらない
 }

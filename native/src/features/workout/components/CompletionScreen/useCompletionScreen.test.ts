@@ -40,7 +40,21 @@ it('完了時に記録を1回だけ保存する', async () => {
   await rerender({});
   await advance(0);
   expect(addWorkoutCompletion).toHaveBeenCalledTimes(1);
-  expect(addWorkoutCompletion).toHaveBeenCalledWith(expect.objectContaining({ courseId: 'quiet', setCount: 4 }));
+  expect(addWorkoutCompletion).toHaveBeenCalledWith(
+    expect.objectContaining({ courseId: 'quiet', setCount: 4, completedSets: 4, durationSec: 345 }),
+  );
+});
+
+it('途中でやめた回は、できたセット数と動いた時間で記録する', async () => {
+  showAd.mockResolvedValue('skipped');
+  const { result } = await renderHook(() =>
+    useCompletionScreen({ courseId: 'standard', setCount: 8, earlyEnd: { completedSets: 2, durationSec: 200 } }),
+  );
+  await advance(0);
+  expect(addWorkoutCompletion).toHaveBeenCalledWith(
+    expect.objectContaining({ courseId: 'standard', setCount: 8, completedSets: 2, durationSec: 200 }),
+  );
+  expect(result.current).toMatchObject({ endedEarly: true, completedSets: 2, totalSec: 200 });
 });
 
 it('5秒後に広告を出し、閉じたらホームへ戻る', async () => {

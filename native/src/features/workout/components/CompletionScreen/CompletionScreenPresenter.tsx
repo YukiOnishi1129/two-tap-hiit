@@ -12,11 +12,21 @@ import { courseName } from '../../lib/labels';
 export type CompletionScreenPresenterProps = {
   courseId: CourseId;
   setCount: SetCount;
+  /** 最後までできたセット数（途中でやめた場合は setCount より小さい） */
+  completedSets: number;
   totalSec: number;
+  endedEarly: boolean;
   onHome: () => void;
 };
 
-export function CompletionScreenPresenter({ courseId, setCount, totalSec, onHome }: CompletionScreenPresenterProps) {
+export function CompletionScreenPresenter({
+  courseId,
+  setCount,
+  completedSets,
+  totalSec,
+  endedEarly,
+  onHome,
+}: CompletionScreenPresenterProps) {
   return (
     <Screen className="px-6">
       <View className="flex-1 items-center justify-center gap-8">
@@ -24,14 +34,21 @@ export function CompletionScreenPresenter({ courseId, setCount, totalSec, onHome
           <Text className="text-6xl">🎉</Text>
           <Text className="text-5xl font-extrabold">{t('complete.title')}</Text>
           <Text variant="muted" className="text-lg">
-            {t('complete.message')}
+            {endedEarly ? t('complete.messageEarly') : t('complete.message')}
           </Text>
         </View>
 
         <Card className="w-full py-2">
           <CardContent className="px-5">
             <SummaryRow label={t('complete.course')} value={courseName(courseId)} />
-            <SummaryRow label={t('complete.sets')} value={t('sets.count', { count: setCount })} />
+            <SummaryRow
+              label={t('complete.sets')}
+              value={
+                endedEarly
+                  ? t('complete.setsPartial', { done: completedSets, total: setCount })
+                  : t('sets.count', { count: setCount })
+              }
+            />
             <SummaryRow label={t('complete.time')} value={formatDuration(totalSec)} last />
           </CardContent>
         </Card>

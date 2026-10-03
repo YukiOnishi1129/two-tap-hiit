@@ -8,7 +8,7 @@ import type { CourseId, ExerciseId, SetCount } from '@/shared/domain/workout';
 import { t } from '@/shared/i18n';
 
 import { type CueMarker, decideCue } from '../../domain/cueSchedule';
-import { buildTimeline, getTimelinePosition } from '../../domain/timeline';
+import { buildTimeline, getTimelinePosition, getWorkoutProgress } from '../../domain/timeline';
 import { pauseBgm, playBgm, stopBgm } from '../../lib/bgmClient';
 import { playCue } from '../../lib/cues';
 import { preloadSounds } from '../../lib/soundClient';
@@ -104,15 +104,38 @@ export function useWorkoutScreen({ courseId, setCount }: { courseId: CourseId; s
   const requestEnd = () => {
     const wasRunning = !isPaused;
     pause();
+    const stoppedElapsedMs =
+      clock.accumulatedMs + (clock.runningSince === null ? 0 : Math.max(0, Date.now() - clock.runningSince));
+    const progress = getWorkoutProgress(phases, stoppedElapsedMs);
     const resumeIfNeeded = () => {
       if (wasRunning) resume();
     };
     Alert.alert(
       t('workout.endConfirm.title'),
-      t('workout.endConfirm.message'),
+      progress.recordable ? t('workout.endConfirm.messageSaved') : t('workout.endConfirm.messageNotSaved'),
       [
         { text: t('workout.endConfirm.cancel'), style: 'cancel', onPress: resumeIfNeeded },
-        { text: t('workout.endConfirm.confirm'), style: 'destructive', onPress: () => router.dismissAll() },
+        {
+          text: t('workout.endConfirm.confirm'),
+          style: 'destructive',
+          onPress: () => {
+            finishedRef.current = true;
+            if (!progress.recordable) {
+              router.dismissAll();
+              return;
+            }
+            // 途中までの分を記録して完了画面へ
+            router.replace({
+              pathname: '/complete',
+              params: {
+                course: courseId,
+                sets: String(setCount),
+                doneSets: String(progress.completedSets),
+                sec: String(progress.activeSec),
+              },
+            });
+          },
+        },
       ],
       { cancelable: true, onDismiss: resumeIfNeeded },
     );

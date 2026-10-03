@@ -10,12 +10,18 @@ import { formatMonth, t } from '@/shared/i18n';
 import type { DateKey } from '@/shared/lib/date';
 import { cn } from '@/shared/lib/utils';
 
+import type { DayEntry } from './useRecordsScreen';
+
 export type RecordsScreenPresenterProps = {
   year: number;
   month: number;
   weeks: (DateKey | null)[][];
   completedDates: Set<DateKey>;
   todayKey: DateKey;
+  selectedDate: DateKey;
+  selectedDateLabel: string;
+  dayEntries: DayEntry[];
+  onSelectDate: (date: DateKey) => void;
   weekCount: number;
   monthCount: number;
   streak: number;
@@ -82,6 +88,9 @@ export function RecordsScreenPresenter(props: RecordsScreenPresenterProps) {
                         day={Number(date.slice(-2))}
                         done={props.completedDates.has(date)}
                         isToday={date === props.todayKey}
+                        selected={date === props.selectedDate}
+                        disabled={date > props.todayKey}
+                        onPress={() => props.onSelectDate(date)}
                       />
                     )}
                   </View>
@@ -93,6 +102,32 @@ export function RecordsScreenPresenter(props: RecordsScreenPresenterProps) {
               <Text variant="muted" className="pt-2 text-center">
                 {t('records.empty')}
               </Text>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="py-2">
+          <CardContent className="px-4">
+            <Text className="pb-1 pt-2 text-lg font-semibold">{props.selectedDateLabel}</Text>
+            {props.dayEntries.length === 0 ? (
+              <Text variant="muted" className="py-3">
+                {t('records.dayRest')}
+              </Text>
+            ) : (
+              props.dayEntries.map((entry, i) => (
+                <View
+                  key={entry.key}
+                  className={cn('flex-row items-center gap-3 py-3', i > 0 && 'border-t border-border')}>
+                  <Text variant="muted" className="w-14 text-base">
+                    {entry.time}
+                  </Text>
+                  <View className={cn('size-2.5 rounded-full', entry.endedEarly ? 'bg-primary/40' : 'bg-primary')} />
+                  <View className="flex-1">
+                    <Text className="text-base font-semibold">{entry.courseName}</Text>
+                    <Text variant="muted">{entry.detail}</Text>
+                  </View>
+                </View>
+              ))
             )}
           </CardContent>
         </Card>
@@ -127,16 +162,41 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function DayCell({ day, done, isToday }: { day: number; done: boolean; isToday: boolean }) {
+type DayCellProps = {
+  day: number;
+  done: boolean;
+  isToday: boolean;
+  selected: boolean;
+  disabled: boolean;
+  onPress: () => void;
+};
+
+function DayCell({ day, done, isToday, selected, disabled, onPress }: DayCellProps) {
   return (
-    <View
-      className={cn(
-        'size-9 items-center justify-center rounded-full',
-        done && 'bg-primary',
-        isToday && !done && 'border-2 border-foreground',
-      )}>
-      <Text className={cn('text-sm', done && 'font-bold text-primary-foreground')}>{day}</Text>
-    </View>
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ selected, disabled }}
+      hitSlop={4}
+      className={cn('rounded-full border-2 p-0.5', selected ? 'border-foreground' : 'border-transparent')}>
+      <View
+        className={cn(
+          'size-8 items-center justify-center rounded-full',
+          done && 'bg-primary',
+          isToday && !done && 'bg-secondary',
+        )}>
+        <Text
+          className={cn(
+            'text-sm',
+            done && 'font-bold text-primary-foreground',
+            isToday && !done && 'font-bold',
+            disabled && 'opacity-30',
+          )}>
+          {day}
+        </Text>
+      </View>
+    </Pressable>
   );
 }
 
