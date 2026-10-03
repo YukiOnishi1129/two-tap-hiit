@@ -59,6 +59,8 @@ export const ja: Record<MessageKey, string> = {
   'records.nextMonth': '次の月',
   'records.weekdays': '月,火,水,木,金,土,日',
   'records.empty': 'まだ記録なし。1回やれば十分。',
+  'records.dayRest': 'この日はおやすみ',
+  'records.entry': '{sets}・{duration}',
 
   'settings.title': '設定',
   'settings.sound': 'サウンド',

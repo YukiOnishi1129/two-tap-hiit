@@ -71,3 +71,36 @@ export function getTimelinePosition(phases: Phase[], elapsedMs: number): Timelin
   }
   return { done: true };
 }
+
+export type WorkoutProgress = {
+  /** 最後までできたセット数（そのセットの2種目目まで終わったら1） */
+  completedSets: number;
+  /** 最後までできた種目の数 */
+  completedExercises: number;
+  /** 実際に動いた秒数（開始前カウントダウンを除く。一時停止は elapsedMs に含まれない） */
+  activeSec: number;
+  /** 途中でやめたときに記録するか。1種目（30秒）以上やっていれば記録する */
+  recordable: boolean;
+};
+
+/** 経過時間（一時停止を除く）から、ここまでにどれだけできたかを求める。途中でやめたときの記録用。 */
+export function getWorkoutProgress(phases: Phase[], elapsedMs: number): WorkoutProgress {
+  let phaseStartMs = 0;
+  let readyMs = 0;
+  let completedExercises = 0;
+  let totalMs = 0;
+  for (const phase of phases) {
+    const durationMs = phase.durationSec * 1000;
+    if (phase.kind === 'ready') readyMs += durationMs;
+    if (phase.kind === 'exercise' && elapsedMs >= phaseStartMs + durationMs) completedExercises += 1;
+    phaseStartMs += durationMs;
+    totalMs += durationMs;
+  }
+  const activeMs = Math.min(Math.max(elapsedMs, 0), totalMs) - readyMs;
+  return {
+    completedSets: Math.floor(completedExercises / 2),
+    completedExercises,
+    activeSec: Math.max(0, Math.floor(activeMs / 1000)),
+    recordable: completedExercises >= 1,
+  };
+}

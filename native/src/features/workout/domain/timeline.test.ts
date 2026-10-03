@@ -1,6 +1,6 @@
 import { getWorkoutDurationSec, SET_COUNTS } from '@/shared/domain/workout';
 
-import { buildTimeline, getTimelinePosition, READY_SECONDS } from './timeline';
+import { buildTimeline, getTimelinePosition, getWorkoutProgress, READY_SECONDS } from './timeline';
 
 describe('buildTimeline', () => {
   it('スタンダード2セットの流れ', () => {
@@ -61,5 +61,44 @@ describe('getTimelinePosition', () => {
     const totalMs = readyMs + getWorkoutDurationSec(2) * 1000;
     expect(getTimelinePosition(phases, totalMs - 1)).toMatchObject({ done: false, phaseIndex: phases.length - 1 });
     expect(getTimelinePosition(phases, totalMs)).toEqual({ done: true });
+  });
+});
+
+describe('getWorkoutProgress（途中でやめたときの記録用）', () => {
+  const phases = buildTimeline('standard', 4);
+  const readyMs = READY_SECONDS * 1000;
+
+  it('1種目目の途中なら記録しない', () => {
+    expect(getWorkoutProgress(phases, readyMs + 29_000)).toMatchObject({
+      completedExercises: 0,
+      completedSets: 0,
+      activeSec: 29,
+      recordable: false,
+    });
+  });
+
+  it('1種目終われば記録する（セットはまだ0）', () => {
+    expect(getWorkoutProgress(phases, readyMs + 30_000)).toMatchObject({
+      completedExercises: 1,
+      completedSets: 0,
+      recordable: true,
+    });
+  });
+
+  it('2セット目の休憩中にやめたら 2セット完了ではなく 1セット完了', () => {
+    // 1セット = 30+15+30 = 75秒、その後の休憩 15秒、2セット目の1種目目 30秒 → 120秒地点
+    expect(getWorkoutProgress(phases, readyMs + 125_000)).toMatchObject({
+      completedExercises: 3,
+      completedSets: 1,
+      activeSec: 125,
+    });
+  });
+
+  it('最後まで行ったら全セット・予定どおりの時間', () => {
+    const totalMs = readyMs + getWorkoutDurationSec(4) * 1000;
+    expect(getWorkoutProgress(phases, totalMs + 5000)).toMatchObject({
+      completedSets: 4,
+      activeSec: getWorkoutDurationSec(4),
+    });
   });
 });

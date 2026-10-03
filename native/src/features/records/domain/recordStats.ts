@@ -41,3 +41,10 @@ export function countStreak(completedDates: Set<DateKey>, today: Date): number {
   }
   return streak;
 }
+
+/** その日にやったワークアウトを、やった順（古い順）に返す。 */
+export function getDayCompletions(completions: WorkoutCompletion[], date: DateKey): WorkoutCompletion[] {
+  return completions
+    .filter((c) => c.date === date)
+    .sort((a, b) => a.completedAt.localeCompare(b.completedAt));
+}

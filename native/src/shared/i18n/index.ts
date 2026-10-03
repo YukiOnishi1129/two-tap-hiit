@@ -35,9 +35,21 @@ export function formatDuration(totalSec: number): string {
   return s === 0 ? t('time.min', { m }) : t('time.minSec', { m, s });
 }
 
+const intlLocale = locale === 'ja' ? 'ja-JP' : 'en-US';
+
+/** 「10月4日(日)」「Sun, Oct 4」のような日付の見出し。 */
+export function formatDay(date: Date): string {
+  return new Intl.DateTimeFormat(intlLocale, { month: 'short', day: 'numeric', weekday: 'short' }).format(date);
+}
+
+/** 「7:30」のような時刻。 */
+export function formatTime(date: Date): string {
+  return new Intl.DateTimeFormat(intlLocale, { hour: 'numeric', minute: '2-digit' }).format(date);
+}
+
 /** 「2026年10月」「October 2026」のような月の見出し。 */
 export function formatMonth(year: number, month: number): string {
-  return new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'en-US', {
+  return new Intl.DateTimeFormat(intlLocale, {
     year: 'numeric',
     month: 'long',
   }).format(new Date(year, month, 1));

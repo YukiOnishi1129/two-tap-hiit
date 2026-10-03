@@ -58,6 +58,8 @@ export const en = {
   'records.nextMonth': 'Next month',
   'records.weekdays': 'M,T,W,T,F,S,S',
   'records.empty': 'Nothing yet. One round is plenty.',
+  'records.dayRest': 'Rest day',
+  'records.entry': '{sets} · {duration}',
 
   'settings.title': 'Settings',
   'settings.sound': 'Sound',
