@@ -56,7 +56,8 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "generate:sounds": "node scripts/generate-sounds.mjs",
-    "lint": "oxlint"
+    "lint": "oxlint",
+    "testflight": "npx testflight@latest"
   },
   "private": true,
   "jest": {

@@ -50,6 +50,35 @@ npm run ios:ja     # 端末の言語に関係なく日本語で起動
 | `EXPO_PUBLIC_LOCALE` | `ja` / `en` で言語を強制（開発用）。未指定なら端末の言語 |
 | `EXPO_PUBLIC_API_BASE_URL` | server の URL。設定すると `/config` を読む。未設定ならローカルのデフォルト値で動く |
 
+## TestFlight に配信する（iOS）
+
+EAS（Expo のクラウドビルド）でビルドし、そのまま TestFlight に上げます。
+
+必要なもの:
+
+- 有料の Apple Developer Program（年額）
+- Expo アカウント（無料）
+- テストする iPhone に TestFlight アプリ
+
+```sh
+cd native
+npm run testflight   # = npx testflight@latest
+```
+
+対話形式で次の順に進みます。
+
+1. Expo にログインし、EAS プロジェクトを作る（初回のみ。`app.json` に projectId が追加されるのでコミットする）
+2. Bundle ID の確認（`com.yukionishi.twotaphiit`）と、暗号化の質問（標準の暗号化しか使っていないので「使っていない」）
+3. Apple ID でログイン（2段階認証あり）。証明書とプロビジョニングプロファイルは EAS が自動で作る
+4. EAS 上で本番ビルド（ビルド番号は自動で +1）
+5. App Store Connect にアップロードして、TestFlight の内部テストに配信
+
+アップロード後、Apple 側の処理に5〜10分ほどかかります。終わったら App Store Connect の TestFlight 画面で内部テスターを追加すると、TestFlight アプリからインストールできます。
+
+- 2回目以降も `npm run testflight` だけで、新しいビルドが TestFlight に上がります
+- 本番ビルドでは広告はオフ（`EXPO_PUBLIC_ADS_MODE=off`）です
+- 外部テスター（チーム外の人）に配る場合は、Apple の Beta App Review が必要です
+
 ## server（API）
 
 ```sh
