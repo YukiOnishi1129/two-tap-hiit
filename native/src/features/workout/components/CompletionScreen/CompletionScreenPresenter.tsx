@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 
+import { BannerAdSlot } from '@/features/ads';
 import { Screen } from '@/shared/components/Screen';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent } from '@/shared/components/ui/card';
@@ -54,10 +55,11 @@ export function CompletionScreenPresenter({
         </Card>
       </View>
 
-      <View className="pb-6">
+      <View className="gap-4 pb-4">
         <Button size="lg" className="h-16" onPress={onHome}>
           <Text className="text-lg font-bold">{t('complete.home')}</Text>
         </Button>
+        <BannerAdSlot />
       </View>
     </Screen>
   );

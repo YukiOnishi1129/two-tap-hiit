@@ -1,5 +1,6 @@
 import { Pressable, View } from 'react-native';
 
+import { BannerAdSlot } from '@/features/ads';
 import { Screen } from '@/shared/components/Screen';
 import { Text } from '@/shared/components/ui/text';
 import { COURSE_IDS, COURSES, type CourseId } from '@/shared/domain/workout';
@@ -13,7 +14,7 @@ export type CourseSelectScreenPresenterProps = {
 export function CourseSelectScreenPresenter({ onSelect }: CourseSelectScreenPresenterProps) {
   return (
     <Screen className="px-5">
-      <View className="flex-1 justify-center gap-4 pb-8">
+      <View className="flex-1 justify-center gap-4 pb-4">
         {COURSE_IDS.map((id) => (
           <Pressable
             key={id}
@@ -36,6 +37,10 @@ export function CourseSelectScreenPresenter({ onSelect }: CourseSelectScreenPres
             </View>
           </Pressable>
         ))}
+      </View>
+      {/* 選択画面のバナー（この画面から次へ進むときに全画面広告は出さない） */}
+      <View className="pb-4">
+        <BannerAdSlot />
       </View>
     </Screen>
   );
