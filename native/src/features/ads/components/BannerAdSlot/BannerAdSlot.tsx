@@ -12,8 +12,11 @@ import { adsMode } from '../../lib/interstitialAdClient';
 export function BannerAdSlot() {
   if (adsMode === 'off') return null;
   return (
-    <View className="h-[50px] items-center justify-center rounded-md border border-dashed border-border bg-muted">
-      <Text variant="muted">{t('ad.banner')}</Text>
+    // 開発中だけ出す「ここにバナー広告が入る」目印。押せるものに見えないよう、角丸・枠線なしの帯にする
+    <View pointerEvents="none" className="h-[50px] items-center justify-center bg-muted/60">
+      <Text variant="muted" className="text-xs">
+        {t('ad.banner')}
+      </Text>
     </View>
   );
 }

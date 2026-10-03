@@ -3,18 +3,16 @@ import { Pressable, View } from 'react-native';
 import { BannerAdSlot } from '@/features/ads';
 import { type WeekDay, WeekDots } from '@/features/records';
 import { Screen } from '@/shared/components/Screen';
-import { Button } from '@/shared/components/ui/button';
 import { Text } from '@/shared/components/ui/text';
 import { t } from '@/shared/i18n';
 
 export type HomeScreenPresenterProps = {
   weekDays: WeekDay[];
   onStart: () => void;
-  onOpenRecords: () => void;
 };
 
 /** ホームは「ダッシュボード」ではなく「スタートボタン」として見せる。 */
-export function HomeScreenPresenter({ weekDays, onStart, onOpenRecords }: HomeScreenPresenterProps) {
+export function HomeScreenPresenter({ weekDays, onStart }: HomeScreenPresenterProps) {
   return (
     <Screen className="px-6">
       <View className="items-center gap-1 pt-10">
@@ -38,9 +36,6 @@ export function HomeScreenPresenter({ weekDays, onStart, onOpenRecords }: HomeSc
           <Text variant="muted">{t('home.thisWeek')}</Text>
           <WeekDots days={weekDays} />
         </View>
-        <Button variant="outline" size="lg" onPress={onOpenRecords}>
-          <Text>{t('home.records')}</Text>
-        </Button>
         <BannerAdSlot />
       </View>
     </Screen>

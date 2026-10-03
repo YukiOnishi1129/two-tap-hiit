@@ -8,6 +8,7 @@ export const en = {
   'home.thisWeek': 'This week',
   'tabs.home': 'Home',
   'tabs.records': 'Records',
+  'tabs.settings': 'Settings',
 
   'course.title': 'Choose a course',
   'course.standard.name': 'Standard',
@@ -70,15 +71,18 @@ export const en = {
   'settings.sound': 'Sound',
   'settings.vibration': 'Vibration',
   'settings.bgm': 'Music',
+  'settings.workoutSection': 'During workouts',
+  'settings.bgmDescription': 'Background music while you move',
+  'settings.soundDescription': 'Beeps for the countdown and switches',
+  'settings.vibrationDescription': 'Vibrate along with the beeps',
 
   'time.minSec': '{m} min {s} sec',
   'time.min': '{m} min',
 
-  'ad.banner': 'Ad space',
+  'ad.banner': 'Banner ad goes here (dev only)',
   'ad.mockInterstitial': 'Ad (mock)',
   'ad.close': 'Close',
 
-  'common.back': 'Back',
 } as const;
 
 export type MessageKey = keyof typeof en;

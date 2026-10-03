@@ -9,6 +9,7 @@ export const ja: Record<MessageKey, string> = {
   'home.thisWeek': '今週',
   'tabs.home': 'ホーム',
   'tabs.records': '記録',
+  'tabs.settings': '設定',
 
   'course.title': 'コースをえらぶ',
   'course.standard.name': 'スタンダード',
@@ -71,13 +72,16 @@ export const ja: Record<MessageKey, string> = {
   'settings.sound': 'サウンド',
   'settings.vibration': 'バイブ',
   'settings.bgm': 'BGM',
+  'settings.workoutSection': 'ワークアウト中',
+  'settings.bgmDescription': '運動中に音楽を流す',
+  'settings.soundDescription': 'カウントダウンや切り替えの「ピッ」',
+  'settings.vibrationDescription': '合図に合わせて振動する',
 
   'time.minSec': '{m}分{s}秒',
   'time.min': '{m}分',
 
-  'ad.banner': '広告枠',
+  'ad.banner': 'ここにバナー広告が入ります（開発中のみ表示）',
   'ad.mockInterstitial': '広告（ダミー）',
   'ad.close': '閉じる',
 
-  'common.back': '戻る',
 };
