@@ -25,14 +25,13 @@
 ```sh
 cd native
 npm install
-npm start          # 開発サーバーを起動（i で iOS、a で Android）
+npm run ios        # 開発ビルドを作ってシミュレーターで起動（Android は npm run android）
+npm run ios:ja     # 端末の言語に関係なく日本語で起動
 ```
 
-`expo-audio` などネイティブモジュールを使っているため、Expo Go ではなく開発ビルドで動かします。
-
-```sh
-npx expo run:ios       # または npx expo run:android
-```
+- `expo-audio` などネイティブモジュールを使っているため、Expo Go ではなく開発ビルドで動かします
+- 一度ビルドしたあとは、JS の変更だけなら `npm start`（日本語は `npm run start:ja`）で十分です。ネイティブのパッケージを追加したときはもう一度 `npm run ios`
+- アプリは端末の言語で日本語／英語を切り替えます。シミュレーターは初期状態が英語なので、日本語で見たいときは `:ja` 付きのスクリプトを使います（切り替わらないときは `npx expo start --clear` でキャッシュを消す）
 
 よく使うコマンド:
 
@@ -41,13 +40,14 @@ npx expo run:ios       # または npx expo run:android
 | `npm run typecheck` | 型チェック（TypeScript 7） |
 | `npm run lint` | oxlint（層ごとの依存ルールもチェック） |
 | `npm test` | テスト（Jest） |
-| `npm run generate:sounds` | 効果音（WAV）を作り直す |
+| `npm run generate:sounds` | 効果音と BGM（WAV）を作り直す |
 
 環境変数（任意）:
 
 | 変数 | 内容 |
 | --- | --- |
 | `EXPO_PUBLIC_ADS_MODE` | `mock`（ダミー広告を表示）または `off`。未指定なら開発中は `mock`、本番は `off` |
+| `EXPO_PUBLIC_LOCALE` | `ja` / `en` で言語を強制（開発用）。未指定なら端末の言語 |
 | `EXPO_PUBLIC_API_BASE_URL` | server の URL。設定すると `/config` を読む。未設定ならローカルのデフォルト値で動く |
 
 ## server（API）

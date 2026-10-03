@@ -46,7 +46,7 @@
           },
           {
             "name": "expo-audio",
-            "message": "音は features/workout/lib/soundClient.ts に閉じ込める"
+            "message": "音は features/workout/lib/soundClient.ts / bgmClient.ts に閉じ込める"
           },
           {
             "name": "expo-haptics",
@@ -132,7 +132,8 @@
     {
       "files": [
         "src/features/workout/lib/soundClient.ts",
-        "src/features/workout/lib/hapticsClient.ts"
+        "src/features/workout/lib/hapticsClient.ts",
+        "src/features/workout/lib/bgmClient.ts"
       ],
       "rules": {
         "no-restricted-imports": "off"

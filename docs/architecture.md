@@ -72,7 +72,7 @@ features/{feature}/
 - `shared/` は `features/` に依存しない
 - Presenter は `expo-router`・repository・`lib/*Client` を import しない
 - `@react-native-async-storage/async-storage` は `shared/lib/storage.ts` だけ
-- `expo-audio` / `expo-haptics` は `features/workout/lib/` だけ
+- `expo-audio` / `expo-haptics` は `features/workout/lib/`（soundClient / bgmClient / hapticsClient）だけ
 
 ---
 
@@ -114,6 +114,9 @@ features/{feature}/
 | ワークアウト中の画面 | スリープしない（keep awake）。スワイプで戻れない。Android の戻るボタンは終了確認 | |
 | タイマーの精度 | 時刻の差分で経過時間を計算する | setInterval の誤差やバックグラウンドでずれないように |
 | ダークモード | MVP ではライトのみ | |
+| 運動の見せ方 | 棒人間アニメーション（SVG + Reanimated）+ 種目名の下に一行のやり方 | 「どんな運動をすればいいかわからない」を解消するため。休憩中・開始前は腰に手を当てて呼吸する棒人間を動かし、つぎの種目は「止めた絵（その種目らしい姿勢）+ 名前 + やり方」のカードで予告する。予習の動きを流すと、休憩中にその運動をするように見えてしまうため |
+| カウントダウンの音 | 運動・休憩・開始前のすべてで、終わる3秒前から1秒ごとに「ピッ」。運動開始は「ピーッ」、休憩開始は「ピッ・ポー」 | 画面を見なくても切り替わりがわかるように |
+| BGM | 運動中は音量 0.5、休憩中は 0.2、開始前・一時停止中・完了後は停止。記録画面の設定でオフにできる | 曲は `scripts/generate-sounds.mjs` で自前生成（権利の心配なし）。他アプリの音楽は止めずに少し下げる |
 
 ---
 
@@ -123,7 +126,8 @@ features/{feature}/
 | --- | --- |
 | AdMob を導入する | `features/ads/lib/interstitialAdClient.ts`（インタースティシャル）、`features/ads/components/BannerAdSlot/`（バナー） |
 | 広告なし課金を入れる | `features/ads/lib/purchaseClient.ts` |
-| 運動アニメーションを本物にする | `features/workout/components/ExerciseVisual/` |
+| 運動アニメーションを本物にする／動きを調整する | `features/workout/components/ExerciseVisual/`（姿勢は `poses.ts`。手足の長さが変わらないかはテストで確認） |
+| BGM を市販の曲などに差し替える | `native/assets/sounds/bgm.wav` を置き換える（ループ再生される） |
 | サーバーの設定を読む | `EXPO_PUBLIC_API_BASE_URL` を設定するだけ（`shared/config/`） |
-| 効果音を作り直す | `native/scripts/generate-sounds.mjs` を編集して `npm run generate:sounds` |
+| 効果音・BGM を作り直す | `native/scripts/generate-sounds.mjs` を編集して `npm run generate:sounds` |
 | UI コンポーネントを追加する | `npx @react-native-reusables/cli@latest add <name>` か、レジストリからコピーして `shared/components/ui/` へ |

@@ -11,10 +11,14 @@ const SOURCES: Record<Cue, number> = {
 
 let players: Record<Cue, AudioPlayer> | null = null;
 
+/** 音の再生モード。BGM と効果音を重ねて鳴らし、他アプリの音は少し下げる。 */
+export function ensureAudioMode(): void {
+  void setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'duckOthers' }).catch(() => {});
+}
+
 function getPlayers(): Record<Cue, AudioPlayer> {
   if (!players) {
-    // 音楽を聴きながら使えるように、他アプリの音は止めずに少し下げる
-    void setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'duckOthers' }).catch(() => {});
+    ensureAudioMode();
     players = {
       tick: createAudioPlayer(SOURCES.tick),
       go: createAudioPlayer(SOURCES.go),
@@ -29,9 +33,21 @@ function getPlayers(): Record<Cue, AudioPlayer> {
 export function playSound(cue: Cue): void {
   try {
     const player = getPlayers()[cue];
-    void player.seekTo(0);
-    player.play();
+    // 巻き戻しが終わってから再生する（終わる前に play すると鳴らないことがある）
+    player
+      .seekTo(0)
+      .then(() => player.play())
+      .catch(() => player.play());
   } catch {
     // 音はあくまで補助なので失敗しても無視する
+  }
+}
+
+/** 画面を開いた時点で読み込んでおき、最初の「ピッ」が遅れないようにする */
+export function preloadSounds(): void {
+  try {
+    getPlayers();
+  } catch {
+    // 無視
   }
 }

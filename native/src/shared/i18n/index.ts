@@ -8,7 +8,14 @@ export type Locale = 'ja' | 'en';
 
 // 端末の言語が日本語なら日本語、それ以外はすべて英語。
 // 起動中に言語が変わるケースは考慮しない（OS 側で言語を変えるとアプリは再起動される）。
-export const locale: Locale = getLocales()[0]?.languageCode === 'ja' ? 'ja' : 'en';
+// 開発時は EXPO_PUBLIC_LOCALE=ja / en で端末の言語に関係なく切り替えられる（`npm run ios:ja` など）。
+function detectLocale(): Locale {
+  const forced = process.env.EXPO_PUBLIC_LOCALE;
+  if (forced === 'ja' || forced === 'en') return forced;
+  return getLocales()[0]?.languageCode === 'ja' ? 'ja' : 'en';
+}
+
+export const locale: Locale = detectLocale();
 
 const messages: Record<MessageKey, string> = locale === 'ja' ? ja : en;
 

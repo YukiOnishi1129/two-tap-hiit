@@ -19,6 +19,10 @@ export const ja: Record<MessageKey, string> = {
   'exercise.mountainClimber': 'マウンテンクライマー',
   'exercise.noJumpBurpee': 'ジャンプなしバービー',
   'exercise.squat': 'スクワット',
+  'exercise.burpee.howTo': 'しゃがんで手をつく → 両足を後ろへ → 戻す → ジャンプ',
+  'exercise.mountainClimber.howTo': '腕立ての姿勢で、膝を左右交互に胸へ',
+  'exercise.noJumpBurpee.howTo': 'しゃがんで手をつく → 片足ずつ後ろへ → 片足ずつ戻す → 立つ',
+  'exercise.squat.howTo': '足は肩幅。イスに座るようにお尻を下げて、立つ',
 
   'sets.title': '何セットやる？',
   'sets.count': '{count}セット',
@@ -59,6 +63,7 @@ export const ja: Record<MessageKey, string> = {
   'settings.title': '設定',
   'settings.sound': 'サウンド',
   'settings.vibration': 'バイブ',
+  'settings.bgm': 'BGM',
 
   'time.minSec': '{m}分{s}秒',
   'time.min': '{m}分',

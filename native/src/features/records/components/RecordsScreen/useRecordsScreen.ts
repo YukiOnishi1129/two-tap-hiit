@@ -64,6 +64,7 @@ export function useRecordsScreen() {
     onNextMonth: () => shiftMonth(1),
     onToggleSound: (soundEnabled: boolean) => updatePreferences({ soundEnabled }),
     onToggleVibration: (vibrationEnabled: boolean) => updatePreferences({ vibrationEnabled }),
+    onToggleBgm: (bgmEnabled: boolean) => updatePreferences({ bgmEnabled }),
     onBack: goHome,
   };
 }

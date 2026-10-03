@@ -18,6 +18,10 @@ export const en = {
   'exercise.mountainClimber': 'Mountain climber',
   'exercise.noJumpBurpee': 'No-jump burpee',
   'exercise.squat': 'Squat',
+  'exercise.burpee.howTo': 'Squat, hands down → jump feet back → jump in → jump up',
+  'exercise.mountainClimber.howTo': 'Push-up position. Drive knees to chest, left and right',
+  'exercise.noJumpBurpee.howTo': 'Squat, hands down → step back one leg at a time → step in → stand',
+  'exercise.squat.howTo': 'Feet shoulder-width. Sit back like into a chair, then stand',
 
   'sets.title': 'How many sets?',
   'sets.count': '{count} sets',
@@ -58,6 +62,7 @@ export const en = {
   'settings.title': 'Settings',
   'settings.sound': 'Sound',
   'settings.vibration': 'Vibration',
+  'settings.bgm': 'Music',
 
   'time.minSec': '{m} min {s} sec',
   'time.min': '{m} min',

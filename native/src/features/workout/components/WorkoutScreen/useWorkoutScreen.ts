@@ -7,9 +7,12 @@ import { DEFAULT_PREFERENCES, getPreferences, type Preferences } from '@/feature
 import type { CourseId, ExerciseId, SetCount } from '@/shared/domain/workout';
 import { t } from '@/shared/i18n';
 
+import { type CueMarker, decideCue } from '../../domain/cueSchedule';
 import { buildTimeline, getTimelinePosition } from '../../domain/timeline';
+import { pauseBgm, playBgm, stopBgm } from '../../lib/bgmClient';
 import { playCue } from '../../lib/cues';
-import { exerciseName } from '../../lib/labels';
+import { preloadSounds } from '../../lib/soundClient';
+import { exerciseHowTo, exerciseName } from '../../lib/labels';
 
 export type WorkoutMode = 'ready' | 'exercise' | 'rest';
 
@@ -21,6 +24,13 @@ type Clock = {
 };
 
 const TICK_MS = 100;
+const BGM_VOLUME = { exercise: 0.5, rest: 0.2 } as const;
+
+export type NextExercise = { exerciseId: ExerciseId; label: string; howTo: string };
+
+function toNextExercise(exerciseId: ExerciseId): NextExercise {
+  return { exerciseId, label: t('workout.next', { name: exerciseName(exerciseId) }), howTo: exerciseHowTo(exerciseId) };
+}
 
 export function useWorkoutScreen({ courseId, setCount }: { courseId: CourseId; setCount: SetCount }) {
   useKeepAwake();
@@ -48,33 +58,47 @@ export function useWorkoutScreen({ courseId, setCount }: { courseId: CourseId; s
   const resume = () => setClock((c) => (c.runningSince === null ? { ...c, runningSince: Date.now() } : c));
 
   // --- 音・振動の合図 ---
-  const preferencesRef = useRef<Preferences>(DEFAULT_PREFERENCES);
+  const [preferences, setPreferences] = useState<Preferences>(DEFAULT_PREFERENCES);
   useEffect(() => {
-    void getPreferences().then((p) => {
-      preferencesRef.current = p;
-    });
+    preloadSounds();
+    void getPreferences().then(setPreferences);
   }, []);
 
-  const cueKey = position.done ? 'done' : `${position.phaseIndex}:${position.remainingSec}`;
-  const lastCueKeyRef = useRef('');
-  useEffect(() => {
-    if (position.done || lastCueKeyRef.current === cueKey) return;
-    const phaseStarted = !lastCueKeyRef.current.startsWith(`${position.phaseIndex}:`);
-    lastCueKeyRef.current = cueKey;
+  // 運動・休憩とも、終わる3秒前から1秒ごとに「ピッ」。切り替わった瞬間に「ピーッ」（運動開始）／「ピッ・ポー」（休憩開始）
 
-    if (phaseStarted && position.phase.kind === 'exercise') playCue('go', preferencesRef.current);
-    else if (phaseStarted && position.phase.kind === 'rest') playCue('rest', preferencesRef.current);
-    else if (position.remainingSec <= 3) playCue('tick', preferencesRef.current); // ラスト3秒
-  }, [cueKey, position]);
+  const cueMarkerRef = useRef<CueMarker>(null);
+  const cueKey = position.done ? 'done' : `${position.phaseIndex}:${position.remainingSec}`;
+  const onPositionChange = useEffectEvent((key: string) => {
+    if (key === 'done' || position.done) return;
+    const cue = decideCue(cueMarkerRef.current, position);
+    cueMarkerRef.current = { phaseIndex: position.phaseIndex, remainingSec: position.remainingSec };
+    if (cue) playCue(cue, preferences);
+  });
+  // 位置（フェーズと残り秒数）が変わったときだけ判定する
+  useEffect(() => onPositionChange(cueKey), [cueKey]);
+
+  // --- BGM: 運動中は普通の音量、休憩中は小さめ、開始前・一時停止中・完了後は止める ---
+  const phaseKind = position.done ? null : position.phase.kind;
+  const bgmVolume =
+    !preferences.bgmEnabled || isPaused || phaseKind === null || phaseKind === 'ready'
+      ? 0
+      : phaseKind === 'exercise'
+        ? BGM_VOLUME.exercise
+        : BGM_VOLUME.rest;
+  useEffect(() => {
+    if (bgmVolume === 0) pauseBgm();
+    else playBgm(bgmVolume);
+  }, [bgmVolume]);
+  useEffect(() => () => stopBgm(), []);
 
   // --- 完了 ---
   const finishedRef = useRef(false);
   useEffect(() => {
     if (!position.done || finishedRef.current) return;
     finishedRef.current = true;
-    playCue('finish', preferencesRef.current);
+    playCue('finish', preferences);
     router.replace({ pathname: '/complete', params: { course: courseId, sets: String(setCount) } });
-  }, [position.done, router, courseId, setCount]);
+  }, [position.done, router, courseId, setCount, preferences]);
 
   // --- 途中でやめる（確認あり） ---
   const requestEnd = () => {
@@ -112,7 +136,6 @@ export function useWorkoutScreen({ courseId, setCount }: { courseId: CourseId; s
   const { phase } = view;
 
   const mode: WorkoutMode = phase.kind;
-  const visualExerciseId: ExerciseId = phase.kind === 'exercise' ? phase.exerciseId : phase.nextExerciseId;
   const title =
     phase.kind === 'exercise'
       ? exerciseName(phase.exerciseId)
@@ -123,8 +146,11 @@ export function useWorkoutScreen({ courseId, setCount }: { courseId: CourseId; s
   return {
     mode,
     title,
-    visualExerciseId,
-    nextLabel: phase.kind === 'exercise' ? null : t('workout.next', { name: exerciseName(phase.nextExerciseId) }),
+    // 運動中はその種目、休憩中・開始前は「休んでいる」動き
+    mainMotion: phase.kind === 'exercise' ? phase.exerciseId : ('rest' as const),
+    howTo: phase.kind === 'exercise' ? exerciseHowTo(phase.exerciseId) : null,
+    // 休憩中・開始前は、つぎの種目を「止めた絵 + 名前 + やり方」で予告する
+    next: phase.kind === 'exercise' ? null : toNextExercise(phase.nextExerciseId),
     setLabel: t('workout.setProgress', { current: phase.kind === 'ready' ? 1 : phase.setNumber, total: setCount }),
     remainingSec: view.remainingSec,
     progress: view.progress,

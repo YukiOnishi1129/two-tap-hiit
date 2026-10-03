@@ -21,11 +21,12 @@ export type RecordsScreenPresenterProps = {
   streak: number;
   isEmpty: boolean;
   canGoNext: boolean;
-  preferences: { soundEnabled: boolean; vibrationEnabled: boolean };
+  preferences: { soundEnabled: boolean; vibrationEnabled: boolean; bgmEnabled: boolean };
   onPrevMonth: () => void;
   onNextMonth: () => void;
   onToggleSound: (value: boolean) => void;
   onToggleVibration: (value: boolean) => void;
+  onToggleBgm: (value: boolean) => void;
   onBack: () => void;
 };
 
@@ -101,6 +102,7 @@ export function RecordsScreenPresenter(props: RecordsScreenPresenterProps) {
             <Text variant="muted" className="pb-1 pt-2">
               {t('settings.title')}
             </Text>
+            <SettingRow label={t('settings.bgm')} value={props.preferences.bgmEnabled} onChange={props.onToggleBgm} />
             <SettingRow label={t('settings.sound')} value={props.preferences.soundEnabled} onChange={props.onToggleSound} />
             <SettingRow
               label={t('settings.vibration')}

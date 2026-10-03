@@ -4,18 +4,21 @@ import { View } from 'react-native';
 import { Screen } from '@/shared/components/Screen';
 import { Button } from '@/shared/components/ui/button';
 import { Text } from '@/shared/components/ui/text';
-import type { ExerciseId } from '@/shared/domain/workout';
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/utils';
 
-import { ExerciseVisual } from '../ExerciseVisual';
-import type { WorkoutMode } from './useWorkoutScreen';
+import { ExerciseVisual, type Motion } from '../ExerciseVisual';
+import type { NextExercise, WorkoutMode } from './useWorkoutScreen';
 
 export type WorkoutScreenPresenterProps = {
   mode: WorkoutMode;
   title: string;
-  visualExerciseId: ExerciseId;
-  nextLabel: string | null;
+  /** 大きく動かすビジュアル（運動中は種目、休憩中・開始前は 'rest'） */
+  mainMotion: Motion;
+  /** 運動中の種目のやり方（一行）。休憩中・開始前は null */
+  howTo: string | null;
+  /** 休憩中・開始前に予告する、つぎの種目 */
+  next: NextExercise | null;
   setLabel: string;
   remainingSec: number;
   progress: number;
@@ -54,11 +57,7 @@ export function WorkoutScreenPresenter(props: WorkoutScreenPresenterProps) {
       </View>
 
       <View className="flex-1 items-center justify-center gap-4">
-        <ExerciseVisual
-          exerciseId={props.visualExerciseId}
-          active={props.mode === 'exercise' && !props.isPaused}
-          size={props.mode === 'exercise' ? 'lg' : 'sm'}
-        />
+        <ExerciseVisual motion={props.mainMotion} state={props.isPaused ? 'paused' : 'playing'} />
         <Text className="text-center text-3xl font-extrabold text-white" accessibilityRole="header">
           {props.title}
         </Text>
@@ -68,7 +67,18 @@ export function WorkoutScreenPresenter(props: WorkoutScreenPresenterProps) {
           accessibilityLiveRegion="polite">
           {props.remainingSec}
         </Text>
-        {props.nextLabel && <Text className="text-xl font-semibold text-white/90">{props.nextLabel}</Text>}
+        {props.howTo && (
+          <Text className="text-center text-base font-medium leading-6 text-white/90">{props.howTo}</Text>
+        )}
+        {props.next && (
+          <View className="w-full flex-row items-center gap-3 rounded-lg bg-white/15 p-3">
+            <ExerciseVisual motion={props.next.exerciseId} state="preview" size="xs" />
+            <View className="flex-1 gap-0.5">
+              <Text className="text-lg font-bold text-white">{props.next.label}</Text>
+              <Text className="text-sm leading-5 text-white/90">{props.next.howTo}</Text>
+            </View>
+          </View>
+        )}
         {props.isPaused && (
           <View className="rounded-full bg-black/30 px-4 py-1.5">
             <Text className="text-base font-bold text-white">{t('workout.paused')}</Text>
