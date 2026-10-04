@@ -4,7 +4,7 @@ import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
-import { MockInterstitialHost } from '@/features/ads';
+import { AdsBootstrap } from '@/features/ads';
 import { t } from '@/shared/i18n';
 
 const BACKGROUND = 'hsl(60, 23%, 97%)';
@@ -28,7 +28,7 @@ export default function RootLayout() {
         <Stack.Screen name="workout" options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
         <Stack.Screen name="complete" options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
       </Stack>
-      <MockInterstitialHost />
+      <AdsBootstrap />
       <PortalHost />
     </>
   );

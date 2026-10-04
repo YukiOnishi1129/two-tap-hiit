@@ -46,7 +46,7 @@ npm run ios:ja     # 端末の言語に関係なく日本語で起動
 
 | 変数 | 内容 |
 | --- | --- |
-| `EXPO_PUBLIC_ADS_MODE` | `mock`（ダミー広告を表示）または `off`。未指定なら開発中は `mock`、本番は `off` |
+| `EXPO_PUBLIC_ADS_MODE` | `test`（Google のテスト広告）/ `admob`（本番の広告）/ `off`（広告なし）。未指定なら開発中は `test`、本番ビルドは `admob` |
 | `EXPO_PUBLIC_LOCALE` | `ja` / `en` で言語を強制（開発用）。未指定なら端末の言語 |
 | `EXPO_PUBLIC_API_BASE_URL` | server の URL。設定すると `/config` を読む。未設定ならローカルのデフォルト値で動く |
 
@@ -76,7 +76,7 @@ npm run testflight   # = npx testflight@latest
 アップロード後、Apple 側の処理に5〜10分ほどかかります。終わったら App Store Connect の TestFlight 画面で内部テスターを追加すると、TestFlight アプリからインストールできます。
 
 - 2回目以降も `npm run testflight` だけで、新しいビルドが TestFlight に上がります
-- 本番ビルドでは広告はオフ（`EXPO_PUBLIC_ADS_MODE=off`）です
+- 本番ビルドは `EXPO_PUBLIC_ADS_MODE=admob` です。AdMob の広告ユニット ID を設定するまでは広告は出ません（[native/src/features/ads/lib/adUnits.ts](native/src/features/ads/lib/adUnits.ts)）
 - 外部テスター（チーム外の人）に配る場合は、Apple の Beta App Review が必要です
 
 ## server（API）

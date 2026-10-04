@@ -80,8 +80,5 @@ export const ja: Record<MessageKey, string> = {
   'time.minSec': '{m}分{s}秒',
   'time.min': '{m}分',
 
-  'ad.banner': 'ここにバナー広告が入ります（開発中のみ表示）',
-  'ad.mockInterstitial': '広告（ダミー）',
-  'ad.close': '閉じる',
 
 };

@@ -51,6 +51,14 @@
           {
             "name": "expo-haptics",
             "message": "振動は features/workout/lib/hapticsClient.ts に閉じ込める"
+          },
+          {
+            "name": "react-native-google-mobile-ads",
+            "message": "広告 SDK は features/ads の中だけで使う（他からは @/features/ads の公開 API 経由）"
+          },
+          {
+            "name": "expo-tracking-transparency",
+            "message": "トラッキング許可は features/ads/lib/admobClient.ts に閉じ込める"
           }
         ],
         "patterns": [
@@ -89,6 +97,47 @@
       ],
       "rules": {
         "import/namespace": "off"
+      }
+    },
+    {
+      "files": [
+        "src/features/ads/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@react-native-async-storage/async-storage",
+                "message": "端末保存は shared/lib/storage.ts 経由で使う（各 feature の repository/ から呼ぶ）"
+              },
+              {
+                "name": "expo-audio",
+                "message": "音は features/workout/lib/soundClient.ts / bgmClient.ts に閉じ込める"
+              },
+              {
+                "name": "expo-haptics",
+                "message": "振動は features/workout/lib/hapticsClient.ts に閉じ込める"
+              }
+            ],
+            "patterns": [
+              {
+                "group": [
+                  "@/features/*/**"
+                ],
+                "message": "他の feature は公開 API (@/features/<name>) 経由で使う。同じ feature 内は相対パスで import する"
+              },
+              {
+                "group": [
+                  "@/app/**",
+                  "@/app"
+                ],
+                "message": "app/ はルーティング専用。他から import しない"
+              }
+            ]
+          }
+        ]
       }
     },
     {

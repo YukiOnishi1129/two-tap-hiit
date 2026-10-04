@@ -1,0 +1,1 @@
+export { AdsBootstrap } from './AdsBootstrap';

@@ -14,7 +14,7 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_ADS_MODE": "off"
+        "EXPO_PUBLIC_ADS_MODE": "admob"
       }
     }
   },

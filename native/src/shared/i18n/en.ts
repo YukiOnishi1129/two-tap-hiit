@@ -79,9 +79,6 @@ export const en = {
   'time.minSec': '{m} min {s} sec',
   'time.min': '{m} min',
 
-  'ad.banner': 'Banner ad goes here (dev only)',
-  'ad.mockInterstitial': 'Ad (mock)',
-  'ad.close': 'Close',
 
 } as const;
 

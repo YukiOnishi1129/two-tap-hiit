@@ -75,6 +75,7 @@ features/{feature}/
 - Presenter は `expo-router`・repository・`lib/*Client` を import しない
 - `@react-native-async-storage/async-storage` は `shared/lib/storage.ts` だけ
 - `expo-audio` / `expo-haptics` は `features/workout/lib/`（soundClient / bgmClient / hapticsClient）だけ
+- `react-native-google-mobile-ads` / `expo-tracking-transparency` は `features/ads/` の中だけ
 
 ---
 
@@ -115,7 +116,9 @@ features/{feature}/
 | 週の始まり | 月曜日 | |
 | バナーの位置 | ホーム・記録・コース選択・セット数選択・完了画面の下。ワークアウト画面と設定画面には置かない | 1日1回スタートするだけでも表示回数を確保するため。選択画面のバナーは画面内に出るだけで、画面の切り替えを邪魔しない |
 | BGM・サウンド・バイブの切り替え | 設定タブに置く | ブリーフの「振動はオフにできるように」に対応。ホームやスタート導線には置かない |
-| 広告の有効／無効 | `EXPO_PUBLIC_ADS_MODE=mock|off`。未指定なら開発中は `mock`（ダミー広告）、本番ビルドは `off` | AdMob 導入前に本番で出ないように |
+| 広告の有効／無効 | `EXPO_PUBLIC_ADS_MODE=admob|test|off`。未指定なら開発中は `test`（Google のテスト広告）、本番ビルドは `admob`。本番の広告ユニット ID が未設定なら広告は出さない | テスト中に本番広告をタップしてしまう（AdMob の規約違反）のを防ぐため |
+| 広告の同意 | 起動時に「EU 等の同意フォーム（UMP）→ iOS のトラッキング許可（ATT）→ SDK 初期化」の順で1回だけ。許可しなくても広告は出る（パーソナライズされないだけ） | Google の EU ユーザー同意ポリシーと Apple の ATT に対応。日本では同意フォームは出ない |
+| バナーのサイズ | 固定 320×50 を中央に置く | 画面の左右の余白の中に必ず収まるように（アダプティブバナーは画面幅いっぱいになるため） |
 | ワークアウト中の画面 | スリープしない（keep awake）。スワイプで戻れない。Android の戻るボタンは終了確認 | |
 | タイマーの精度 | 時刻の差分で経過時間を計算する | setInterval の誤差やバックグラウンドでずれないように |
 | ダークモード | MVP ではライトのみ | |
@@ -129,7 +132,7 @@ features/{feature}/
 
 | やりたいこと | 触る場所 |
 | --- | --- |
-| AdMob を導入する | `features/ads/lib/interstitialAdClient.ts`（インタースティシャル）、`features/ads/components/BannerAdSlot/`（バナー） |
+| AdMob の本番 ID を設定する | 広告ユニット ID は `features/ads/lib/adUnits.ts`、アプリ ID は `app.json` の `react-native-google-mobile-ads` プラグイン設定（いまは Google のサンプル ID）。変更後はネイティブの再ビルドが必要 |
 | 広告なし課金を入れる | `features/ads/lib/purchaseClient.ts` |
 | 運動アニメーションを本物にする／動きを調整する | `features/workout/components/ExerciseVisual/`（姿勢は `poses.ts`。手足の長さが変わらないかはテストで確認） |
 | BGM を市販の曲などに差し替える | `native/assets/sounds/bgm.wav` を置き換える（ループ再生される） |

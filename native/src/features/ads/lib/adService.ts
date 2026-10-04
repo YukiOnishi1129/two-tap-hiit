@@ -1,5 +1,5 @@
 import { hasNoAdsEntitlement } from './purchaseClient';
-import { isInterstitialAvailable, showInterstitial } from './interstitialAdClient';
+import { isInterstitialAvailable, showInterstitial } from './admobClient';
 import { getAdThrottleState, saveAdThrottleState } from '../repository/adThrottleRepository';
 import { getAppConfig } from '@/shared/config/getAppConfig';
 
