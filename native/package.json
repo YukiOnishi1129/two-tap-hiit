@@ -60,7 +60,8 @@
     "test": "jest",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "lint": "oxlint",
-    "testflight": "npx testflight@latest"
+    "testflight": "npx testflight@latest",
+    "testflight:test-ads": "npx eas-cli@latest build --platform ios --profile testflight-test-ads --auto-submit-with-profile production"
   },
   "private": true,
   "jest": {

@@ -16,6 +16,12 @@
       "env": {
         "EXPO_PUBLIC_ADS_MODE": "admob"
       }
+    },
+    "testflight-test-ads": {
+      "extends": "production",
+      "env": {
+        "EXPO_PUBLIC_ADS_MODE": "test"
+      }
     }
   },
   "submit": {
