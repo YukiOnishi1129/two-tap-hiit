@@ -13,6 +13,7 @@
 
 - [docs/implementation-brief.md](docs/implementation-brief.md) — MVP の仕様（何を作るか）
 - [docs/architecture.md](docs/architecture.md) — native の設計方針（どこに何を置くか）と実装の判断
+- [docs/operations.md](docs/operations.md) — 運用ガイド（収益化の方針・売上の試算・アカウント・リリース手順・メンテナンス）
 
 ## 必要なもの
 
