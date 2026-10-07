@@ -3,40 +3,30 @@ import { Pressable, View } from 'react-native';
 import { BannerAdSlot } from '@/features/ads';
 import { Screen } from '@/shared/components/Screen';
 import { Text } from '@/shared/components/ui/text';
-import { type CourseId, getWorkoutDurationSec, SET_COUNTS, type SetCount } from '@/shared/domain/workout';
-import { t } from '@/shared/i18n';
+import { type CourseId, getWorkoutDurationSec, SET_CHOICES, type SetChoice } from '@/shared/domain/workout';
+import { formatSetCount, t } from '@/shared/i18n';
 
 import { courseName } from '../../lib/labels';
 
 export type SetSelectScreenPresenterProps = {
   courseId: CourseId;
-  onSelect: (setCount: SetCount) => void;
+  onSelect: (sets: SetChoice) => void;
 };
 
 export function SetSelectScreenPresenter({ courseId, onSelect }: SetSelectScreenPresenterProps) {
   return (
     <Screen className="px-5">
-      <View className="flex-1 justify-center gap-6 pb-4">
+      <View className="flex-1 justify-center gap-5 pb-4">
         <View className="items-center gap-1">
           <Text variant="muted" className="text-base">
             {courseName(courseId)}
           </Text>
           <Text variant="muted">{t('sets.note')}</Text>
         </View>
-        <View className="flex-row flex-wrap justify-between gap-y-4">
-          {SET_COUNTS.map((count) => (
-            <Pressable
-              key={count}
-              onPress={() => onSelect(count)}
-              accessibilityRole="button"
-              accessibilityLabel={t('sets.count', { count })}
-              className="aspect-square w-[48%] items-center justify-center gap-1 rounded-lg border-2 border-border bg-card active:border-primary active:bg-accent">
-              <Text className="text-6xl font-extrabold">{count}</Text>
-              <Text className="text-base font-semibold">{t('sets.count', { count })}</Text>
-              <Text variant="muted">
-                {t('sets.duration', { minutes: Math.round(getWorkoutDurationSec(count) / 60) })}
-              </Text>
-            </Pressable>
+        {/* 2列: フリー・1 / 2・4 / 6・8 */}
+        <View className="flex-row flex-wrap justify-between gap-y-3">
+          {SET_CHOICES.map((choice) => (
+            <SetChoiceButton key={String(choice)} choice={choice} onPress={() => onSelect(choice)} />
           ))}
         </View>
       </View>
@@ -45,5 +35,23 @@ export function SetSelectScreenPresenter({ courseId, onSelect }: SetSelectScreen
         <BannerAdSlot />
       </View>
     </Screen>
+  );
+}
+
+function SetChoiceButton({ choice, onPress }: { choice: SetChoice; onPress: () => void }) {
+  const isFree = choice === 'free';
+  const label = isFree ? t('sets.free') : formatSetCount(choice);
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      className="aspect-[4/3] w-[48%] items-center justify-center gap-0.5 rounded-lg border-2 border-border bg-card active:border-primary active:bg-accent">
+      <Text className="text-5xl font-extrabold">{isFree ? '∞' : choice}</Text>
+      <Text className="text-base font-semibold">{label}</Text>
+      <Text variant="muted">
+        {isFree ? t('sets.freeNote') : t('sets.duration', { minutes: Math.max(1, Math.round(getWorkoutDurationSec(choice) / 60)) })}
+      </Text>
+    </Pressable>
   );
 }

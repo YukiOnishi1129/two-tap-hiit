@@ -2,5 +2,6 @@
 export { RecordsScreen } from './components/RecordsScreen';
 export { WeekDots } from './components/WeekDots';
 export { getCompletedDates, getWeekDays, type WeekDay } from './domain/recordStats';
-export { addWorkoutCompletion, listWorkoutCompletions } from './repository/workoutCompletionRepository';
-export type { WorkoutCompletion } from './types/workoutCompletion';
+export { type CompletionSummary, completionId, summarizeCompletion } from './domain/completionSummary';
+export { listWorkoutCompletions, saveWorkoutResult } from './repository/workoutCompletionRepository';
+export type { WorkoutCompletion, WorkoutResult } from './types/workoutCompletion';

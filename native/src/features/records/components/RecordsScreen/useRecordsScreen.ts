@@ -1,10 +1,10 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 
-import { formatDay, formatDuration, formatTime, t } from '@/shared/i18n';
+import { formatDay, formatDuration, formatSetCount, formatTime, t } from '@/shared/i18n';
 import { type DateKey, fromDateKey, getMonthGrid, toDateKey } from '@/shared/lib/date';
 
-import { summarizeCompletion } from '../../domain/completionSummary';
+import { completionId, summarizeCompletion } from '../../domain/completionSummary';
 import { countMonthDays, countStreak, countWeekDays, getCompletedDates, getDayCompletions } from '../../domain/recordStats';
 import { listWorkoutCompletions } from '../../repository/workoutCompletionRepository';
 import type { WorkoutCompletion } from '../../types/workoutCompletion';
@@ -21,13 +21,17 @@ export type DayEntry = {
 function toDayEntry(completion: WorkoutCompletion): DayEntry {
   const summary = summarizeCompletion(completion);
   const duration = formatDuration(summary.durationSec);
+  const detail =
+    summary.mode === 'free'
+      ? t('records.entryFree', { sets: formatSetCount(summary.completedSets), duration })
+      : summary.endedEarly
+        ? t('records.entryPartial', { done: summary.completedSets, total: summary.setCount, duration })
+        : t('records.entry', { sets: formatSetCount(summary.completedSets), duration });
   return {
-    key: completion.completedAt,
+    key: completionId(completion),
     time: formatTime(new Date(completion.completedAt)),
     courseName: t(`course.${completion.courseId}.name`),
-    detail: summary.endedEarly
-      ? t('records.entryPartial', { done: summary.completedSets, total: completion.setCount, duration })
-      : t('records.entry', { sets: t('sets.count', { count: completion.setCount }), duration }),
+    detail,
     endedEarly: summary.endedEarly,
   };
 }

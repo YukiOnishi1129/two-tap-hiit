@@ -1,4 +1,5 @@
-import { type WorkoutCompletion, WorkoutCompletionListSchema } from '../types/workoutCompletion';
+import { mergeWorkoutResult } from '../domain/mergeWorkoutResult';
+import { type WorkoutCompletion, WorkoutCompletionListSchema, type WorkoutResult } from '../types/workoutCompletion';
 
 import { readJson, writeJson } from '@/shared/lib/storage';
 
@@ -8,7 +9,11 @@ export function listWorkoutCompletions(): Promise<WorkoutCompletion[]> {
   return readJson(KEY, WorkoutCompletionListSchema, []);
 }
 
-export async function addWorkoutCompletion(completion: WorkoutCompletion): Promise<void> {
+/** ワークアウトの結果を保存し、保存（または「もう1セット」で更新）した記録を返す。 */
+export async function saveWorkoutResult(result: WorkoutResult, now: Date = new Date()): Promise<WorkoutCompletion> {
   const current = await listWorkoutCompletions();
-  await writeJson(KEY, [...current, completion]);
+  const newId = `${now.getTime().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const { completions, saved } = mergeWorkoutResult(current, result, now, newId);
+  await writeJson(KEY, completions);
+  return saved;
 }

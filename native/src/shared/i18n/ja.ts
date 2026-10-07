@@ -28,6 +28,9 @@ export const ja: Record<MessageKey, string> = {
 
   'sets.title': '何セットやる？',
   'sets.count': '{count}セット',
+  'sets.countOne': '1セット',
+  'sets.free': 'フリー',
+  'sets.freeNote': '好きなだけ',
   'sets.duration': '約{minutes}分',
   'sets.note': '1セット = 30秒×2種目',
 
@@ -36,6 +39,11 @@ export const ja: Record<MessageKey, string> = {
   'workout.rest': '休憩',
   'workout.next': 'つぎ：{name}',
   'workout.setProgress': 'セット {current} / {total}',
+  'workout.setProgressFree': 'セット {current}',
+  'workout.oneMoreSet': 'もう1セット',
+  'workout.finish': 'おわる',
+  'workout.finishConfirm.title': 'ここで終わる？',
+  'workout.finishConfirm.message': '{sets}を記録します。',
   'workout.pause': '一時停止',
   'workout.resume': '再開',
   'workout.end': 'やめる',
@@ -54,6 +62,8 @@ export const ja: Record<MessageKey, string> = {
   'complete.sets': 'セット数',
   'complete.time': '時間',
   'complete.home': 'ホームへ',
+  'complete.oneMore': 'もう1セットやる',
+  'complete.setsFree': '{sets}（フリー）',
 
   'records.title': '記録',
   'records.thisWeek': '今週',
@@ -67,6 +77,7 @@ export const ja: Record<MessageKey, string> = {
   'records.dayRest': 'この日はおやすみ',
   'records.entry': '{sets}・{duration}',
   'records.entryPartial': '{done}/{total}セット（途中まで）・{duration}',
+  'records.entryFree': 'フリー・{sets}・{duration}',
 
   'settings.title': '設定',
   'settings.sound': 'サウンド',

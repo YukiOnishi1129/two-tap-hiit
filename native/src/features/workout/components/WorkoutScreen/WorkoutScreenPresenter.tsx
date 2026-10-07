@@ -20,6 +20,8 @@ export type WorkoutScreenPresenterProps = {
   /** 休憩中・開始前に予告する、つぎの種目 */
   next: NextExercise | null;
   setLabel: string;
+  /** 終了ボタンの文言（通常は「やめる」、フリーは「おわる」） */
+  endLabel: string;
   remainingSec: number;
   progress: number;
   isPaused: boolean;
@@ -88,7 +90,7 @@ export function WorkoutScreenPresenter(props: WorkoutScreenPresenterProps) {
 
       <View className="flex-row gap-3 pb-6">
         <Button variant="ghost" size="lg" className="h-16 flex-1 border-2 border-white/60" onPress={props.onEnd}>
-          <Text className="text-lg font-bold text-white">{t('workout.end')}</Text>
+          <Text className="text-lg font-bold text-white">{props.endLabel}</Text>
         </Button>
         <Button size="lg" className="h-16 flex-[2] bg-white active:bg-white/90" onPress={props.onTogglePause}>
           <Text className="text-lg font-bold text-foreground">

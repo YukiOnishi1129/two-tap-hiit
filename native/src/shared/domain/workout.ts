@@ -3,8 +3,17 @@
 export const COURSE_IDS = ['standard', 'quiet'] as const;
 export type CourseId = (typeof COURSE_IDS)[number];
 
-export const SET_COUNTS = [2, 4, 6, 8] as const;
+export const SET_COUNTS = [1, 2, 4, 6, 8] as const;
 export type SetCount = (typeof SET_COUNTS)[number];
+
+/** セット数の選び方。決まったセット数か、自分で「おわる」まで続けるフリー */
+export type SetChoice = SetCount | 'free';
+
+/** セット数選択画面の並び順（2列: フリー・1 / 2・4 / 6・8） */
+export const SET_CHOICES: readonly SetChoice[] = ['free', 1, 2, 4, 6, 8];
+
+/** フリーの上限（実質無制限。99セットで約2時間20分） */
+export const FREE_MAX_SETS = 99;
 
 export type ExerciseId = 'burpee' | 'mountainClimber' | 'noJumpBurpee' | 'squat';
 
@@ -25,48 +34,69 @@ export function isCourseId(value: unknown): value is CourseId {
   return COURSE_IDS.includes(value as CourseId);
 }
 
-export function parseSetCount(value: unknown): SetCount | null {
+export function parseSetChoice(value: unknown): SetChoice | null {
+  if (value === 'free') return 'free';
   const n = Number(value);
   return SET_COUNTS.includes(n as SetCount) ? (n as SetCount) : null;
 }
 
-/** ルートパラメータ（文字列）からコースとセット数を取り出す。不正なら null。 */
+/** タイマーで組むセット数。フリーは上限まで組んでおき、ユーザーが「おわる」で止める */
+export function plannedSetCount(choice: SetChoice): number {
+  return choice === 'free' ? FREE_MAX_SETS : choice;
+}
+
+export type WorkoutParams = {
+  courseId: CourseId;
+  sets: SetChoice;
+  /** 「もう1セット」のとき、足し算する先の記録の ID。通常は null */
+  extendsId: string | null;
+};
+
+const single = (value: string | string[] | undefined): string | undefined =>
+  Array.isArray(value) ? value[0] : value;
+
+/** ルートパラメータ（文字列）からワークアウトの内容を取り出す。不正なら null。 */
 export function parseWorkoutParams(
   course: string | string[] | undefined,
   sets: string | string[] | undefined,
-): { courseId: CourseId; setCount: SetCount } | null {
-  const setCount = parseSetCount(sets);
-  if (!isCourseId(course) || setCount === null) return null;
-  return { courseId: course, setCount };
+  extend?: string | string[] | undefined,
+): WorkoutParams | null {
+  const choice = parseSetChoice(single(sets));
+  const courseId = single(course);
+  if (!isCourseId(courseId) || choice === null) return null;
+  return { courseId, sets: choice, extendsId: single(extend) || null };
 }
 
 /**
  * 運動している時間の合計（秒）。最後のセットの後ろの休憩は含めない。
  * 例: 2セット = 30+15+30+15+30+15+30 = 165秒
  */
-export function getWorkoutDurationSec(setCount: SetCount): number {
+export function getWorkoutDurationSec(setCount: number): number {
+  if (setCount <= 0) return 0;
   const intervals = setCount * 2;
   return intervals * EXERCISE_SECONDS + (intervals - 1) * REST_SECONDS;
 }
 
-/** 途中でやめたときの記録内容 */
-export type EarlyEnd = { completedSets: number; durationSec: number };
+/** 実際にやった内容（途中でやめた・フリーで終えた場合）。予定どおり最後までやった場合は使わない */
+export type WorkoutOutcome = { completedSets: number; durationSec: number };
 
 /**
- * 完了画面のルートパラメータから「途中でやめた」情報を取り出す。
- * パラメータが無ければ最後までやった扱い（null）。
+ * 完了画面のルートパラメータから「実際にやった内容」を取り出す。
+ * パラメータが無ければ予定どおり最後までやった扱い（null）。
  */
-export function parseEarlyEnd(
+export function parseWorkoutOutcome(
   doneSets: string | string[] | undefined,
   sec: string | string[] | undefined,
-  setCount: SetCount,
-): EarlyEnd | null {
-  if (doneSets === undefined || sec === undefined) return null;
-  const completedSets = Number(doneSets);
-  const durationSec = Number(sec);
+  maxSets: number,
+): WorkoutOutcome | null {
+  const doneSetsValue = single(doneSets);
+  const secValue = single(sec);
+  if (doneSetsValue === undefined || secValue === undefined) return null;
+  const completedSets = Number(doneSetsValue);
+  const durationSec = Number(secValue);
   if (!Number.isInteger(completedSets) || !Number.isInteger(durationSec)) return null;
   return {
-    completedSets: Math.min(Math.max(completedSets, 0), setCount),
-    durationSec: Math.min(Math.max(durationSec, 0), getWorkoutDurationSec(setCount)),
+    completedSets: Math.min(Math.max(completedSets, 0), maxSets),
+    durationSec: Math.min(Math.max(durationSec, 0), getWorkoutDurationSec(maxSets)),
   };
 }

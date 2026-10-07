@@ -1,18 +1,22 @@
 import { Redirect, useLocalSearchParams } from 'expo-router';
 
 import { CompletionScreen } from '@/features/workout';
-import { parseEarlyEnd, parseWorkoutParams } from '@/shared/domain/workout';
+import { parseWorkoutOutcome, parseWorkoutParams, plannedSetCount } from '@/shared/domain/workout';
 
 export default function CompleteRoute() {
-  const { course, sets, doneSets, sec } = useLocalSearchParams<{
+  const { course, sets, extend, doneSets, sec } = useLocalSearchParams<{
     course?: string;
+    /** 1〜8 または free */
     sets?: string;
-    /** 途中でやめたときだけ: できたセット数 */
+    /** 「もう1セット」のとき、足し算する先の記録の ID */
+    extend?: string;
+    /** 途中でやめた・フリーで終えたときだけ: できたセット数 */
     doneSets?: string;
-    /** 途中でやめたときだけ: 動いた秒数 */
+    /** 途中でやめた・フリーで終えたときだけ: 動いた秒数 */
     sec?: string;
   }>();
-  const params = parseWorkoutParams(course, sets);
+  const params = parseWorkoutParams(course, sets, extend);
   if (!params) return <Redirect href="/" />;
-  return <CompletionScreen {...params} earlyEnd={parseEarlyEnd(doneSets, sec, params.setCount)} />;
+  const outcome = parseWorkoutOutcome(doneSets, sec, plannedSetCount(params.sets));
+  return <CompletionScreen {...params} outcome={outcome} />;
 }

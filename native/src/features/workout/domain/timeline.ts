@@ -4,7 +4,6 @@ import {
   EXERCISE_SECONDS,
   type ExerciseId,
   REST_SECONDS,
-  type SetCount,
 } from '@/shared/domain/workout';
 
 // ワークアウトの流れ（フェーズの並び）と、経過時間から「いまどこか」を求める純粋関数。
@@ -21,7 +20,7 @@ export type Phase =
   | { kind: 'exercise'; durationSec: number; exerciseId: ExerciseId; setNumber: number }
   | { kind: 'rest'; durationSec: number; nextExerciseId: ExerciseId; setNumber: number };
 
-export function buildTimeline(courseId: CourseId, setCount: SetCount): Phase[] {
+export function buildTimeline(courseId: CourseId, setCount: number): Phase[] {
   const [first, second] = COURSES[courseId].exercises;
   const phases: Phase[] = [{ kind: 'ready', durationSec: READY_SECONDS, nextExerciseId: first }];
 

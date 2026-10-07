@@ -1,8 +1,6 @@
-import type { CourseId, EarlyEnd, SetCount } from '@/shared/domain/workout';
-
 import { CompletionScreenPresenter } from './CompletionScreenPresenter';
-import { useCompletionScreen } from './useCompletionScreen';
+import { type CompletionParams, useCompletionScreen } from './useCompletionScreen';
 
-export function CompletionScreenContainer(props: { courseId: CourseId; setCount: SetCount; earlyEnd?: EarlyEnd | null }) {
+export function CompletionScreenContainer(props: CompletionParams) {
   return <CompletionScreenPresenter {...useCompletionScreen(props)} />;
 }

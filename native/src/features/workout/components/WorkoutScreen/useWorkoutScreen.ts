@@ -4,8 +4,8 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import { Alert, BackHandler } from 'react-native';
 
 import { DEFAULT_PREFERENCES, getPreferences, type Preferences } from '@/features/settings';
-import type { CourseId, ExerciseId, SetCount } from '@/shared/domain/workout';
-import { t } from '@/shared/i18n';
+import { type ExerciseId, plannedSetCount, type WorkoutParams } from '@/shared/domain/workout';
+import { formatSetCount, t } from '@/shared/i18n';
 
 import { type CueMarker, decideCue } from '../../domain/cueSchedule';
 import { buildTimeline, getTimelinePosition, getWorkoutProgress } from '../../domain/timeline';
@@ -32,10 +32,20 @@ function toNextExercise(exerciseId: ExerciseId): NextExercise {
   return { exerciseId, label: t('workout.next', { name: exerciseName(exerciseId) }), howTo: exerciseHowTo(exerciseId) };
 }
 
-export function useWorkoutScreen({ courseId, setCount }: { courseId: CourseId; setCount: SetCount }) {
+export function useWorkoutScreen({ courseId, sets, extendsId }: WorkoutParams) {
   useKeepAwake();
   const router = useRouter();
+  const isFree = sets === 'free';
+  const setCount = plannedSetCount(sets);
   const phases = useMemo(() => buildTimeline(courseId, setCount), [courseId, setCount]);
+
+  /** 完了画面へ渡すパラメータ。outcome は途中で終えたとき（フリーで「おわる」を含む）だけ渡す */
+  const completeParams = (outcome?: { completedSets: number; activeSec: number }) => ({
+    course: courseId,
+    sets: String(sets),
+    ...(extendsId ? { extend: extendsId } : {}),
+    ...(outcome ? { doneSets: String(outcome.completedSets), sec: String(outcome.activeSec) } : {}),
+  });
 
   // 時刻ベースで経過時間を計算する（setInterval の誤差やバックグラウンドでずれないように）
   const [clock, setClock] = useState<Clock>(() => ({ accumulatedMs: 0, runningSince: Date.now() }));
@@ -93,14 +103,17 @@ export function useWorkoutScreen({ courseId, setCount }: { courseId: CourseId; s
 
   // --- 完了 ---
   const finishedRef = useRef(false);
-  useEffect(() => {
-    if (!position.done || finishedRef.current) return;
+  const onFinished = useEffectEvent(() => {
+    if (finishedRef.current) return;
     finishedRef.current = true;
     playCue('finish', preferences);
-    router.replace({ pathname: '/complete', params: { course: courseId, sets: String(setCount) } });
-  }, [position.done, router, courseId, setCount, preferences]);
+    router.replace({ pathname: '/complete', params: completeParams() });
+  });
+  useEffect(() => {
+    if (position.done) onFinished();
+  }, [position.done]);
 
-  // --- 途中でやめる（確認あり） ---
+  // --- 途中でやめる / フリーで「おわる」（確認あり） ---
   const requestEnd = () => {
     const wasRunning = !isPaused;
     pause();
@@ -110,30 +123,28 @@ export function useWorkoutScreen({ courseId, setCount }: { courseId: CourseId; s
     const resumeIfNeeded = () => {
       if (wasRunning) resume();
     };
+    const message = !progress.recordable
+      ? t('workout.endConfirm.messageNotSaved')
+      : isFree && progress.completedSets > 0
+        ? t('workout.finishConfirm.message', { sets: formatSetCount(progress.completedSets) })
+        : t('workout.endConfirm.messageSaved');
     Alert.alert(
-      t('workout.endConfirm.title'),
-      progress.recordable ? t('workout.endConfirm.messageSaved') : t('workout.endConfirm.messageNotSaved'),
+      isFree ? t('workout.finishConfirm.title') : t('workout.endConfirm.title'),
+      message,
       [
         { text: t('workout.endConfirm.cancel'), style: 'cancel', onPress: resumeIfNeeded },
         {
-          text: t('workout.endConfirm.confirm'),
-          style: 'destructive',
+          text: isFree ? t('workout.finish') : t('workout.endConfirm.confirm'),
+          // フリーで終えるのは普通の終わり方なので、赤い「破壊的」ボタンにしない
+          style: isFree ? 'default' : 'destructive',
           onPress: () => {
             finishedRef.current = true;
             if (!progress.recordable) {
               router.dismissAll();
               return;
             }
-            // 途中までの分を記録して完了画面へ
-            router.replace({
-              pathname: '/complete',
-              params: {
-                course: courseId,
-                sets: String(setCount),
-                doneSets: String(progress.completedSets),
-                sec: String(progress.activeSec),
-              },
-            });
+            // ここまでの分を記録して完了画面へ
+            router.replace({ pathname: '/complete', params: completeParams(progress) });
           },
         },
       ],
@@ -159,6 +170,7 @@ export function useWorkoutScreen({ courseId, setCount }: { courseId: CourseId; s
   const { phase } = view;
 
   const mode: WorkoutMode = phase.kind;
+  const currentSet = phase.kind === 'ready' ? 1 : phase.setNumber;
   const title =
     phase.kind === 'exercise'
       ? exerciseName(phase.exerciseId)
@@ -174,7 +186,12 @@ export function useWorkoutScreen({ courseId, setCount }: { courseId: CourseId; s
     howTo: phase.kind === 'exercise' ? exerciseHowTo(phase.exerciseId) : null,
     // 休憩中・開始前は、つぎの種目を「止めた絵 + 名前 + やり方」で予告する
     next: phase.kind === 'exercise' ? null : toNextExercise(phase.nextExerciseId),
-    setLabel: t('workout.setProgress', { current: phase.kind === 'ready' ? 1 : phase.setNumber, total: setCount }),
+    setLabel: extendsId
+      ? t('workout.oneMoreSet')
+      : isFree
+        ? t('workout.setProgressFree', { current: currentSet })
+        : t('workout.setProgress', { current: currentSet, total: setCount }),
+    endLabel: isFree ? t('workout.finish') : t('workout.end'),
     remainingSec: view.remainingSec,
     progress: view.progress,
     isPaused,

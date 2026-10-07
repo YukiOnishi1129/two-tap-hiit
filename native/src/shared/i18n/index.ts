@@ -28,6 +28,11 @@ export function t(key: MessageKey, params?: Record<string, string | number>): st
   );
 }
 
+/** セット数を「1セット」「4 sets」「1 set」のように表示する。 */
+export function formatSetCount(count: number): string {
+  return count === 1 ? t('sets.countOne') : t('sets.count', { count });
+}
+
 /** 秒数を「2分45秒」「3 min」のように表示する。 */
 export function formatDuration(totalSec: number): string {
   const m = Math.floor(totalSec / 60);

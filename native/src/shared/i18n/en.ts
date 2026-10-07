@@ -27,6 +27,9 @@ export const en = {
 
   'sets.title': 'How many sets?',
   'sets.count': '{count} sets',
+  'sets.countOne': '1 set',
+  'sets.free': 'Free',
+  'sets.freeNote': 'Go until you stop',
   'sets.duration': 'About {minutes} min',
   'sets.note': '1 set = 2 moves, 30 sec each',
 
@@ -35,6 +38,11 @@ export const en = {
   'workout.rest': 'Rest',
   'workout.next': 'Next: {name}',
   'workout.setProgress': 'Set {current} / {total}',
+  'workout.setProgressFree': 'Set {current}',
+  'workout.oneMoreSet': 'One more set',
+  'workout.finish': 'Finish',
+  'workout.finishConfirm.title': 'Finish here?',
+  'workout.finishConfirm.message': '{sets} will be saved.',
   'workout.pause': 'Pause',
   'workout.resume': 'Resume',
   'workout.end': 'End',
@@ -53,6 +61,8 @@ export const en = {
   'complete.sets': 'Sets',
   'complete.time': 'Time',
   'complete.home': 'Home',
+  'complete.oneMore': 'One more set',
+  'complete.setsFree': '{sets} (free)',
 
   'records.title': 'Records',
   'records.thisWeek': 'This week',
@@ -66,6 +76,7 @@ export const en = {
   'records.dayRest': 'Rest day',
   'records.entry': '{sets} · {duration}',
   'records.entryPartial': '{done} of {total} sets (ended early) · {duration}',
+  'records.entryFree': 'Free · {sets} · {duration}',
 
   'settings.title': 'Settings',
   'settings.sound': 'Sound',
