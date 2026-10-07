@@ -104,6 +104,9 @@ npm run dev        # http://localhost:8787/health
 | --- | --- |
 | [native](.github/workflows/native.yml) | oxlint → 型チェック → Jest → expo-doctor → iOS / Android の JS バンドル作成 |
 | [server](.github/workflows/server.yml) | oxlint → 型チェック → Vitest → `wrangler deploy --dry-run`（デプロイはしない） |
+| [testflight](.github/workflows/testflight.yml) | main で native の CI が成功したら、EAS で iOS をビルドして TestFlight に自動アップロード。コミットメッセージに `[skip testflight]` でスキップ。Actions 画面から手動実行も可（本番設定 / テスト広告入り） |
 
-ネイティブのバイナリ（ipa / apk）は CI では作りません。実機向けのビルドは EAS Build で行います。
+native / server のワークフローでは、ネイティブのバイナリ（ipa / apk）は作りません。iOS のバイナリは testflight ワークフローが EAS Build に依頼して作ります。
+
+testflight ワークフローを動かすには、GitHub のリポジトリに `EXPO_TOKEN` シークレットが必要です（expo.dev → Account settings → Access tokens で作成 → GitHub の Settings → Secrets and variables → Actions に登録）。
 

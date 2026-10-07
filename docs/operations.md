@@ -93,6 +93,16 @@
 
 ### iOS（TestFlight）
 
+**自動**: `main` にマージされ、native の CI が成功すると、GitHub Actions（[testflight.yml](../.github/workflows/testflight.yml)）が EAS にビルドを依頼し、TestFlight に自動でアップロードする。
+
+- 本番設定（`production` プロファイル）でビルドする
+- そのマージではビルドしたくない場合は、コミットメッセージに `[skip testflight]` を入れる
+- テスト広告入りで上げたいときは、GitHub の Actions 画面 → testflight →「Run workflow」で `testflight-test-ads` を選ぶ
+- ビルドの進み具合は expo.dev のプロジェクト画面で確認できる。EAS の無料プランはビルド回数に上限があるので、細かい修正は `[skip testflight]` でまとめるとよい
+- 必要なシークレット: `EXPO_TOKEN`（expo.dev → Account settings → Access tokens で作成し、GitHub の Settings → Secrets and variables → Actions に登録）
+
+**手元から**:
+
 ```sh
 cd native
 pnpm testflight            # 本番設定（広告は本番 ID）でビルド → TestFlight へアップロード
