@@ -50,8 +50,16 @@ jobs:
       - name: Test (Jest)
         run: npm test -- --ci
 
-      - name: Expo doctor
-        run: npx expo-doctor
+      # Expo はパッチ版（例: 57.0.26 → 57.0.27）を頻繁に出すので、そのたびに CI が赤くならないよう
+      # expo-doctor は失敗扱いにせず、問題があれば警告として表示するだけにする。
+      # 警告が出たら、ブランチを切って `npx expo install --fix` で上げる。
+      - name: Expo doctor (warning only)
+        continue-on-error: true
+        run: |
+          if ! npx expo-doctor; then
+            echo "::warning title=expo-doctor::依存関係に問題があります。native で npx expo install --fix を実行してください"
+            exit 1
+          fi
 
       # ネイティブのバイナリまでは作らず、iOS / Android の JS バンドルが作れるかを確認する
       # （実機用のビルドは EAS Build で行う）
