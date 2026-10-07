@@ -1,0 +1,90 @@
+name: testflight
+
+# main にマージされ、native の CI（lint / 型チェック / テスト / バンドル作成）が成功したら、
+# EAS で iOS をビルドして TestFlight に自動でアップロードする。
+#
+# - native の CI は native/ に変更があったときだけ動くので、docs や server だけの変更ではビルドしない
+# - コミットメッセージに [skip testflight] を入れると、そのマージではビルドしない
+# - Actions 画面から手動でも実行できる（本番設定 / テスト広告入りを選べる）
+#
+# 必要なシークレット: EXPO_TOKEN（expo.dev → Account settings → Access tokens で作成）
+
+on:
+  workflow_run:
+    workflows: [native]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: ビルドの種類
+        type: choice
+        default: production
+        options:
+          - production # 本番設定（広告は本番 ID。未設定なら広告なし）
+          - testflight-test-ads # Google のテスト広告入り
+
+permissions:
+  contents: read
+
+# 連続でマージしても、ビルドの依頼が重ならないようにする
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: native
+
+jobs:
+  submit:
+    name: build & submit to TestFlight
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       !contains(github.event.workflow_run.head_commit.message, '[skip testflight]'))
+    env:
+      CI: 'true'
+      PROFILE: ${{ github.event_name == 'workflow_dispatch' && inputs.profile || 'production' }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # CI が成功したコミットそのものをビルドする
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: native/package-lock.json
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install
+        run: npm ci
+
+      # 手動実行のときは native の CI を通っていないので、ここで確認する
+      - name: Lint / typecheck / test (manual run only)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test -- --ci
+
+      # ビルドとアップロードは EAS のクラウドで行う（--no-wait で依頼したら終了。進み具合は expo.dev で確認）
+      # ビルド番号は EAS が自動で +1 する。証明書・App Store Connect の API キーは EAS に保存済み
+      - name: Build on EAS and submit to TestFlight
+        run: >-
+          eas build
+          --platform ios
+          --profile "$PROFILE"
+          --auto-submit-with-profile production
+          --non-interactive
+          --no-wait
